@@ -10,7 +10,7 @@ import java.util.List;
 
 @jakarta.persistence.Entity
 @Table(name ="Emp_Details")
-@JsonIgnoreProperties({"Request_List", "dailySummary"})
+@JsonIgnoreProperties({"requestsList", "DailySummary","empid"})
 public class employee
 {
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)

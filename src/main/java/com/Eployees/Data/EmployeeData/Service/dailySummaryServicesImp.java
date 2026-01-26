@@ -28,18 +28,18 @@ public class dailySummaryServicesImp implements dailySummaryService
         long empId = summary.getEmployee().getEmpId();
         employee existing = employeeRepository.findById(empId).orElseThrow(() -> new IllegalArgumentException("Employee is not existing"));
         summary.setEmployee(existing);
+        summary.setTotalCount(summary.getTotalCount()+summary.getDailyCount());
         return SummaryRepository.save(summary);
     }
 
     @Override
     public dailySummary updateSummary (long empId, dailySummary summary)
     {
-        if (summary.getEmployee().getEmpId() == 0)
-        {
-            throw new IllegalArgumentException("Employee Id is required ");
-        }
-        dailySummary existSummary = SummaryRepository.findById(empId).orElseThrow(()-> new IllegalArgumentException("Employee is not existing"));
-        existSummary.setTotalCount(summary.getTotalCount()+existSummary.getDailyCount());
+        employee existing = employeeRepository.findById(empId).orElseThrow(() -> new IllegalArgumentException("Employee can't be find"));
+        dailySummary existSummary = SummaryRepository.findById(empId).orElseThrow(()-> new IllegalArgumentException("Summary can't be find"));
+        existSummary.setEmployee(existing);
+        existSummary.setDailyCount(summary.getDailyCount());
+        existSummary.setTotalCount(existSummary.getTotalCount()+summary.getDailyCount());
         return SummaryRepository.save(existSummary);
     }
 

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +20,7 @@ public class dailySummary
     @Id
     private long empId;
 
-    @CreationTimestamp
+    @UpdateTimestamp
     private LocalDateTime date;
 
     private int dailyCount;
@@ -26,11 +28,10 @@ public class dailySummary
 
     public dailySummary(){}
 
-    public dailySummary(employee employee, int dailyCount, int totalCount)
+    public dailySummary(employee employee, int dailyCount)
     {
         this.employee = employee;
         this.dailyCount = dailyCount;
-        this.totalCount = totalCount;
     }
 
     public employee getEmployee()
@@ -55,9 +56,9 @@ public class dailySummary
     {
         return dailyCount;
     }
-    public void setDailyCount(int Daily_Count)
+    public void setDailyCount(int dailyCount)
     {
-        this.dailyCount = Daily_Count;
+        this.dailyCount = dailyCount;
     }
 
     public int getTotalCount()

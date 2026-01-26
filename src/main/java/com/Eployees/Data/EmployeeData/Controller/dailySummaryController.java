@@ -17,8 +17,7 @@ public class dailySummaryController
     @PostMapping("/count")
     public dailySummary saveSummary ( @RequestBody dailySummary summary)
     {
-        System.out.println(summary.getEmployee().getEmpId());
-        return dailySummaryService.saveSummary( summary);
+        return dailySummaryService.saveSummary(summary);
     }
 
     @PutMapping("/updateSummary/{empId}")
