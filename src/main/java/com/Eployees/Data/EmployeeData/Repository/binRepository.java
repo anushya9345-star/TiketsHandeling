@@ -1,13 +1,9 @@
 package com.Eployees.Data.EmployeeData.Repository;
 
 import com.Eployees.Data.EmployeeData.Entity.bin;
-import com.Eployees.Data.EmployeeData.Entity.employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-
-
-public interface employeeRepository extends JpaRepository<employee, Long>
+public interface binRepository extends JpaRepository <bin, String>
 {
-
-    employee findBybin(bin bin);
+    bin findBybinName (String binName);
 }

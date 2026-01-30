@@ -16,9 +16,9 @@ public class tickets
 {
 
     @ManyToOne
-    @JoinColumn(name = "empId")
+    @JoinColumn(name = "binId")
     @JsonBackReference
-    private employee employee;
+    private bin bin;
 
 
     @Id
@@ -44,7 +44,7 @@ public class tickets
 
     private String notes;
 
-    private String pendingReason;
+    private String statusReason;
 
     private String assignedBin;
 
@@ -55,7 +55,7 @@ public class tickets
     {
         this.status = Status;
         this.assignedBin = assignedBin;
-        this.pendingReason = pendingReason;
+        this.statusReason = pendingReason;
     }
 
     public long getRequestId()
@@ -85,13 +85,13 @@ public class tickets
         this.status = status;
     }
 
-    public String getPendingReason()
+    public String getStatusReason()
     {
-        return pendingReason;
+        return statusReason;
     }
-    public void setPendingReason(String pendingReason)
+    public void setStatusReason(String statusReason)
     {
-        this.pendingReason = pendingReason;
+        this.statusReason = statusReason;
     }
 
     public String getNotes ()
@@ -112,12 +112,12 @@ public class tickets
         this.assignedBin = assignedBin;
     }
 
-    public employee getEmployee ()
+    public bin getBin ()
     {
-        return employee;
+        return bin;
     }
-    public void setEmployee (employee employee)
+    public void setBin (bin bin)
     {
-        this.employee = employee;
+        this.bin = bin;
     }
 }

@@ -2,6 +2,8 @@ package com.Eployees.Data.EmployeeData.Controller;
 
 import com.Eployees.Data.EmployeeData.Entity.dailySummary;
 import com.Eployees.Data.EmployeeData.Service.dailySummaryService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,21 +17,21 @@ public class dailySummaryController
     }
 
     @PostMapping("/count")
-    public dailySummary saveSummary ( @RequestBody dailySummary summary)
+    public ResponseEntity<dailySummary> saveSummary (@RequestBody dailySummary summary)
     {
-        return dailySummaryService.saveSummary(summary);
+        return new ResponseEntity<>(dailySummaryService.saveSummary(summary), HttpStatus.CREATED);
     }
 
     @PutMapping("/updateSummary/{empId}")
-    public dailySummary updateSummary (@PathVariable long empId, @RequestBody dailySummary summary)
+    public ResponseEntity<dailySummary> updateSummary (@PathVariable long empId, @RequestBody dailySummary summary)
     {
-        return dailySummaryService.updateSummary(empId, summary);
+        return new ResponseEntity<>(dailySummaryService.updateSummary(empId, summary), HttpStatus.OK);
     }
 
     @GetMapping("/sumById")
-    public dailySummary getSummaryByEmpId (@RequestParam Long empId)
+    public ResponseEntity<dailySummary> getSummaryByEmpId (@RequestParam Long empId)
     {
-        return dailySummaryService.getSummaryByEmpId(empId);
+        return new ResponseEntity<>(dailySummaryService.getSummaryByEmpId(empId),HttpStatus.OK);
     }
 
 }

@@ -1,25 +1,25 @@
 package com.Eployees.Data.EmployeeData.Entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 
 import java.util.List;
 
-@jakarta.persistence.Entity
+@Entity
 @Table(name ="Emp_Details")
-@JsonIgnoreProperties({"requestsList", "DailySummary","empid"})
+@JsonIgnoreProperties({"DailySummary","empid"})
 public class employee
 {
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private List<tickets> requestsList;
+
 
     @OneToOne(mappedBy = "employee")
     @JsonManagedReference
     private dailySummary DailySummary;
+
+    @OneToOne
+    @JsonBackReference
+    @JoinColumn(name = "binId")
+    private bin bin;
 
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
@@ -29,14 +29,13 @@ public class employee
     @Column(name = "ECN_number", unique = true)
     private String ecnNum;
     private String empName;
-    private String binName;
-    public employee(){
+    public employee()
+    {}
 
-    }
-    public employee(String empName, String binName)
+    public employee(bin bin, String empName)
     {
+        this.bin = bin;
         this.empName = empName;
-        this.binName = binName;
     }
 
     public String getEmpName()
@@ -48,11 +47,11 @@ public class employee
         this.empName = Emp_Name;
     }
 
-    public String getecnNum ()
+    public String getEcnNum ()
     {
         return ecnNum;
     }
-    public void setecnNum(String ecnNum)
+    public void setEcnNum(String ecnNum)
     {
         this.ecnNum = ecnNum;
     }
@@ -66,13 +65,20 @@ public class employee
         this.empId = empId;
     }
 
-    public String getBinName()
+    public bin getBin ()
     {
-        return binName;
+        return bin;
     }
-    public void setBinName(String Bin_Name)
+    public void setBin (bin bin)
     {
-        this.binName = Bin_Name;
+        this.bin = bin;
     }
+
+    @JsonProperty("binName")
+    public String getBinName ()
+    {
+        return bin != null ? bin.getBinName() : null ;
+    }
+
 
 }

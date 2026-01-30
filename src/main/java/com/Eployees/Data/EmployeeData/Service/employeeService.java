@@ -8,6 +8,6 @@ public interface employeeService
     employee getEmpByEmpId(long empId);
     employee getEmpByBinName(String binName);
     void deleteEmployeeById(long empId);
-    employee updateEmployeeName(Long emplId, employee employee);
+    employee updateEmployeeName(long emplId, employee employee);
 }
 

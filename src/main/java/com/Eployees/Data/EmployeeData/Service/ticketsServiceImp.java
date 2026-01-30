@@ -1,9 +1,12 @@
 package com.Eployees.Data.EmployeeData.Service;
 
 import com.Eployees.Data.EmployeeData.Entity.StatusEnum;
+import com.Eployees.Data.EmployeeData.Entity.bin;
 import com.Eployees.Data.EmployeeData.Entity.employee;
 import com.Eployees.Data.EmployeeData.Entity.tickets;
 import com.Eployees.Data.EmployeeData.Repository.ticketsRepository;
+import com.Eployees.Data.EmployeeData.Repository.binRepository;
+import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,12 +15,14 @@ import java.util.List;
 public class ticketsServiceImp implements ticketsService
 {
     private final ticketsRepository ticketsRepository;
-    private final employeeService employeeService;
+    private final binRepository binRepository;
+    private final employeeRepository employeeRepository;
 
-    public ticketsServiceImp(ticketsRepository ticketsRepository, employeeService employeeService)
+    public ticketsServiceImp(ticketsRepository ticketsRepository, binRepository binRepository, employeeRepository employeeRepository)
     {
         this.ticketsRepository = ticketsRepository;
-        this.employeeService = employeeService;
+        this.binRepository = binRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     @Override
@@ -25,8 +30,8 @@ public class ticketsServiceImp implements ticketsService
     {
         long nextNumber = ticketsRepository.getNextSequence();
         String requestCode = String.format("WO%08d", nextNumber);
-        employee emp = employeeService.getEmpByBinName(tickets.getBinName());
-        tickets.setEmployee(emp);
+        bin assignedBin = binRepository.findBybinName(tickets.getBinName());
+        tickets.setBin(assignedBin);
         tickets.setRequestCode (requestCode);
         return ticketsRepository.save(tickets);
     }
@@ -37,24 +42,24 @@ public class ticketsServiceImp implements ticketsService
         tickets existing = ticketsRepository.findById(requestId).orElseThrow(()->new RuntimeException("Request Is doesn't match"));
         existing.setStatus(tickets.getStatus());
 
-        if(tickets.getStatus() == StatusEnum.Pending )
+        if(tickets.getStatus() == StatusEnum.Pending  || tickets.getStatus() == StatusEnum.Close)
         {
 
-            if(tickets.getPendingReason()==null || tickets.getPendingReason().isBlank())
+            if(tickets.getStatusReason()==null || tickets.getStatusReason().isBlank())
             {
                 throw new IllegalArgumentException("Reason is required");
             }
-            existing.setPendingReason(tickets.getPendingReason());
+            existing.setStatusReason(tickets.getStatusReason());
         }
         else if (tickets.getStatus() == StatusEnum.Resolved)
         {
             validateResolutionNotes(tickets.getNotes());
             existing.setNotes(tickets.getNotes());
-            existing.setPendingReason(null);
+            existing.setStatusReason(null);
 
         } else
         {
-            existing.setPendingReason(null);
+            existing.setStatusReason(null);
         }
 
         return ticketsRepository.save(existing);
@@ -64,8 +69,9 @@ public class ticketsServiceImp implements ticketsService
     public tickets updateBin (long requestId, tickets ticket)
     {
         tickets existing = ticketsRepository.findById(requestId).orElseThrow(()->new IllegalArgumentException("Requst is not created yet!"));
-        employee exisEmp = employeeService.getEmpByBinName(ticket.getBinName());
-        existing.setEmployee(exisEmp);
+        bin assignedBin = binRepository.findBybinName(ticket.getBinName());
+        existing.setBin(assignedBin);
+        existing.setBinName(assignedBin.getBinName());
         return ticketsRepository.save(existing);
     }
 
@@ -78,7 +84,9 @@ public class ticketsServiceImp implements ticketsService
     @Override
     public List <tickets> getByEmpId(long empId)
     {
-        return ticketsRepository.findByEmployee_EmpId(empId);
+        employee existingEmp = employeeRepository.findById(empId).orElseThrow(()-> new IllegalArgumentException("Employee doesn't exist"));
+        String existingBin = existingEmp.getBinName();
+        return ticketsRepository.findByAssignedBin(existingBin);
     }
 
     private void validateResolutionNotes(String notes)
@@ -89,20 +97,20 @@ public class ticketsServiceImp implements ticketsService
         }
 
         String requiredFormate =
-                "Problem Reported: "+
-                        ".*Prolem Analized: "+
-                        ".*Action Taken: "+
-                        ".*Remark: "+
-                        ".*Regards: ";
+                "Problem Reported: .*"+
+                        "Problem Analized: .*"+
+                        "Action Taken: .*"+
+                        "Remark: .*"+
+                        "Regards: .*";
 
         if(!notes.matches("(?s).*" + requiredFormate + ".*"))
         {
             throw new IllegalArgumentException(
-                    "Notes formate must contains:\n"+
+                    "Notes formate must contains:"+
                             "Problem Reported: "+
                     ".*Problem Analized: "+
                             ".*Action Taken:"+
-                            ".*Remarks: "+
+                            ".*Remark: "+
                             ".*Regards: "
             );
         }

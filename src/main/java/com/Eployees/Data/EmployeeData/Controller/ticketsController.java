@@ -2,6 +2,8 @@ package com.Eployees.Data.EmployeeData.Controller;
 
 import com.Eployees.Data.EmployeeData.Entity.tickets;
 import com.Eployees.Data.EmployeeData.Service.ticketsService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,31 +20,31 @@ public class ticketsController
     }
 
     @PostMapping("/assign")
-    public tickets createTickets (@RequestBody tickets tickets)
+    public ResponseEntity<tickets> createTickets (@RequestBody tickets tickets)
     {
-        return ticketsService.createRequest(tickets);
+        return new ResponseEntity<>(ticketsService.createRequest(tickets), HttpStatus.CREATED);
     }
 
     @PutMapping("/updateStatus/{requestId}")
-    public tickets updateStatus (@PathVariable long requestId, @RequestBody tickets tickets)
+    public ResponseEntity<tickets>  updateStatus (@PathVariable long requestId, @RequestBody tickets tickets)
     {
-         return ticketsService.updateStatus(requestId, tickets);
+         return new ResponseEntity<>(ticketsService.updateStatus(requestId, tickets), HttpStatus.OK);
     }
 
     @PutMapping("/updateBin/{requestId}")
-    public tickets updateBin (@PathVariable long requestId, @RequestBody tickets ticket)
+    public ResponseEntity<tickets>  updateBin (@PathVariable long requestId, @RequestBody tickets ticket)
     {
-        return ticketsService.updateBin(requestId, ticket);
+        return new ResponseEntity<>(ticketsService.updateBin(requestId, ticket), HttpStatus.OK);
     }
     @GetMapping("/reqByBin")
-    public List<tickets> getByBinNamee(@RequestParam String binName)
+    public ResponseEntity<List<tickets>> getByBinNamee(@RequestParam String binName)
     {
-        return ticketsService.getByAssignedBin(binName);
+        return new ResponseEntity<>(ticketsService.getByAssignedBin(binName), HttpStatus.OK);
     }
 
     @GetMapping("/reqById")
-    public List<tickets> getByEmpId (@RequestParam long empId)
+    public ResponseEntity<List<tickets>> getByEmpId (@RequestParam long empId)
     {
-        return ticketsService.getByEmpId(empId);
+        return new ResponseEntity<>(ticketsService.getByEmpId(empId), HttpStatus.OK);
     }
 }
