@@ -4,9 +4,11 @@ import com.Eployees.Data.EmployeeData.Entity.dailySummary;
 import com.Eployees.Data.EmployeeData.Entity.employee;
 import com.Eployees.Data.EmployeeData.Repository.dailySummaryRepository;
 import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class dailySummaryServicesImp implements dailySummaryService
 {
     private final dailySummaryRepository SummaryRepository;
@@ -48,4 +50,11 @@ public class dailySummaryServicesImp implements dailySummaryService
     {
         return SummaryRepository.getReferenceById(empId);
     }
+
+    @Override
+    public void deleteSummaryById (long empId)
+    {
+        SummaryRepository.deleteById(empId);
+    }
+
 }

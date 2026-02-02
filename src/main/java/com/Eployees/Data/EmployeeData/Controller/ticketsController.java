@@ -1,5 +1,6 @@
 package com.Eployees.Data.EmployeeData.Controller;
 
+import com.Eployees.Data.EmployeeData.Entity.StatusEnum;
 import com.Eployees.Data.EmployeeData.Entity.tickets;
 import com.Eployees.Data.EmployeeData.Service.ticketsService;
 import org.springframework.http.HttpStatus;
@@ -9,42 +10,63 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/Tickets")
+@RequestMapping("/tickets")
 
 public class ticketsController
 {
+
     private final ticketsService ticketsService;
     public ticketsController (ticketsService ticketsService)
     {
         this.ticketsService = ticketsService;
     }
 
-    @PostMapping("/assign")
+    @PostMapping("/create")
     public ResponseEntity<tickets> createTickets (@RequestBody tickets tickets)
     {
         return new ResponseEntity<>(ticketsService.createRequest(tickets), HttpStatus.CREATED);
     }
 
-    @PutMapping("/updateStatus/{requestId}")
+    @PutMapping("/updateStatusById/{requestId}")
     public ResponseEntity<tickets>  updateStatus (@PathVariable long requestId, @RequestBody tickets tickets)
     {
          return new ResponseEntity<>(ticketsService.updateStatus(requestId, tickets), HttpStatus.OK);
     }
 
-    @PutMapping("/updateBin/{requestId}")
+    @PutMapping("/updateBinById/{requestId}")
     public ResponseEntity<tickets>  updateBin (@PathVariable long requestId, @RequestBody tickets ticket)
     {
         return new ResponseEntity<>(ticketsService.updateBin(requestId, ticket), HttpStatus.OK);
     }
-    @GetMapping("/reqByBin")
+
+    @GetMapping("/getByBinName")
     public ResponseEntity<List<tickets>> getByBinNamee(@RequestParam String binName)
     {
-        return new ResponseEntity<>(ticketsService.getByAssignedBin(binName), HttpStatus.OK);
+        return new ResponseEntity<>(ticketsService.getByBin(binName), HttpStatus.OK);
     }
 
-    @GetMapping("/reqById")
+    @GetMapping("/getById")
     public ResponseEntity<List<tickets>> getByEmpId (@RequestParam long empId)
     {
         return new ResponseEntity<>(ticketsService.getByEmpId(empId), HttpStatus.OK);
     }
+
+    @GetMapping("/getByBin/{binName}/getByStatus")
+    public ResponseEntity<List<tickets>> getByBinAndStatus (@PathVariable String binName, @RequestParam StatusEnum status)
+    {
+        return new ResponseEntity<>(ticketsService.getByBinAndStatus(binName, status), HttpStatus.OK);
+    }
+
+    @GetMapping("/getByStatus")
+    public ResponseEntity<List <tickets>> getByStatus (@RequestParam StatusEnum status)
+    {
+        return new ResponseEntity<>(ticketsService.getByStatus(status), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteById")
+    public void deleteById (@RequestParam long requestId)
+    {
+        ticketsService.deleteById(requestId);
+    }
+
 }

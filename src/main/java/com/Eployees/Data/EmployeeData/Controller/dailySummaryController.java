@@ -16,22 +16,28 @@ public class dailySummaryController
         this.dailySummaryService = dailySummaryService;
     }
 
-    @PostMapping("/count")
+    @PostMapping("/create")
     public ResponseEntity<dailySummary> saveSummary (@RequestBody dailySummary summary)
     {
         return new ResponseEntity<>(dailySummaryService.saveSummary(summary), HttpStatus.CREATED);
     }
 
-    @PutMapping("/updateSummary/{empId}")
+    @PutMapping("/updateById/{empId}")
     public ResponseEntity<dailySummary> updateSummary (@PathVariable long empId, @RequestBody dailySummary summary)
     {
         return new ResponseEntity<>(dailySummaryService.updateSummary(empId, summary), HttpStatus.OK);
     }
 
-    @GetMapping("/sumById")
+    @GetMapping("/getById")
     public ResponseEntity<dailySummary> getSummaryByEmpId (@RequestParam Long empId)
     {
         return new ResponseEntity<>(dailySummaryService.getSummaryByEmpId(empId),HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteById")
+    public void deleteSummaryById (@RequestParam long empId)
+    {
+        dailySummaryService.deleteSummaryById(empId);
     }
 
 }

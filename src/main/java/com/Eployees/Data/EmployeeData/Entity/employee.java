@@ -12,9 +12,9 @@ public class employee
 {
 
 
-    @OneToOne(mappedBy = "employee")
+    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private dailySummary DailySummary;
+    private dailySummary dailySummary;
 
     @OneToOne
     @JsonBackReference
@@ -73,6 +73,16 @@ public class employee
     {
         this.bin = bin;
     }
+
+    public dailySummary getSummary ()
+    {
+        return dailySummary;
+    }
+    public void setDailySummary(dailySummary dailySummary)
+    {
+        this.dailySummary = dailySummary;
+    }
+
 
     @JsonProperty("binName")
     public String getBinName ()

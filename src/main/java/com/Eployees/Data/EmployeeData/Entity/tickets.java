@@ -46,15 +46,15 @@ public class tickets
 
     private String statusReason;
 
-    private String assignedBin;
+
 
     public tickets()
     {}
 
-    public tickets (StatusEnum Status, String assignedBin, String pendingReason)
+    public tickets (StatusEnum Status, bin bin,  String pendingReason)
     {
         this.status = Status;
-        this.assignedBin = assignedBin;
+        this.bin = bin;
         this.statusReason = pendingReason;
     }
 
@@ -103,15 +103,6 @@ public class tickets
         this.notes = notes;
     }
 
-    public String getBinName()
-    {
-        return assignedBin;
-    }
-    public void setBinName(String assignedBin)
-    {
-        this.assignedBin = assignedBin;
-    }
-
     public bin getBin ()
     {
         return bin;
@@ -119,5 +110,11 @@ public class tickets
     public void setBin (bin bin)
     {
         this.bin = bin;
+    }
+
+    @JsonProperty("binName")
+    public String getBinName ()
+    {
+        return bin != null ? bin.getBinName():null;
     }
 }

@@ -7,11 +7,13 @@ import com.Eployees.Data.EmployeeData.Entity.tickets;
 import com.Eployees.Data.EmployeeData.Repository.ticketsRepository;
 import com.Eployees.Data.EmployeeData.Repository.binRepository;
 import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class ticketsServiceImp implements ticketsService
 {
     private final ticketsRepository ticketsRepository;
@@ -30,7 +32,7 @@ public class ticketsServiceImp implements ticketsService
     {
         long nextNumber = ticketsRepository.getNextSequence();
         String requestCode = String.format("WO%08d", nextNumber);
-        bin assignedBin = binRepository.findBybinName(tickets.getBinName());
+        bin assignedBin = binRepository.findById(tickets.getBin().getBinId()).orElseThrow(()->new IllegalArgumentException("Bin isn't exist"));
         tickets.setBin(assignedBin);
         tickets.setRequestCode (requestCode);
         return ticketsRepository.save(tickets);
@@ -69,24 +71,46 @@ public class ticketsServiceImp implements ticketsService
     public tickets updateBin (long requestId, tickets ticket)
     {
         tickets existing = ticketsRepository.findById(requestId).orElseThrow(()->new IllegalArgumentException("Requst is not created yet!"));
-        bin assignedBin = binRepository.findBybinName(ticket.getBinName());
+        bin assignedBin = binRepository.getReferenceById(ticket.getBin().getBinId());
+        if (assignedBin == null)
+        {
+            throw new IllegalArgumentException("Bin can't be find");
+        }
         existing.setBin(assignedBin);
-        existing.setBinName(assignedBin.getBinName());
         return ticketsRepository.save(existing);
     }
 
     @Override
-    public List<tickets> getByAssignedBin(String binName)
+    public List <tickets> getByBin (String binName)
     {
-        return ticketsRepository.findByAssignedBin(binName);
+        bin assignedBin = binRepository.findBybinName(binName);
+        return ticketsRepository.findBybin(assignedBin);
     }
 
     @Override
     public List <tickets> getByEmpId(long empId)
     {
         employee existingEmp = employeeRepository.findById(empId).orElseThrow(()-> new IllegalArgumentException("Employee doesn't exist"));
-        String existingBin = existingEmp.getBinName();
-        return ticketsRepository.findByAssignedBin(existingBin);
+        String binName = existingEmp.getBinName();
+        bin assignedBin = binRepository.findBybinName(binName);
+        return ticketsRepository.findBybin(assignedBin);
+    }
+
+    @Override
+    public List <tickets> getByStatus (StatusEnum status)
+    {
+        return ticketsRepository.findBystatus(status);
+    }
+    @Override
+    public List <tickets> getByBinAndStatus (String binName, StatusEnum status)
+    {
+        bin existingBin = binRepository.findBybinName(binName);
+        return ticketsRepository.findByBinAndStatus(existingBin,status);
+    }
+    @Override
+    public void deleteById (long requestId)
+    {
+        ticketsRepository.deleteById(requestId);
     }
 
     private void validateResolutionNotes(String notes)

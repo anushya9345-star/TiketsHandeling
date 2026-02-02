@@ -42,9 +42,10 @@ public class binController
         return new ResponseEntity<>(binService.getAllBins(),HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete")
-    public void deleteBin (String binId)
+    @DeleteMapping("/delete/{binId}")
+    public void deleteBin ( @PathVariable String binId)
     {
         binService.deleteBin(binId);
     }
+
 }

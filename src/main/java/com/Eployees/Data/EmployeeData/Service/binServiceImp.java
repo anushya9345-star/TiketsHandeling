@@ -2,11 +2,13 @@ package com.Eployees.Data.EmployeeData.Service;
 
 import com.Eployees.Data.EmployeeData.Entity.bin;
 import com.Eployees.Data.EmployeeData.Repository.binRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class binServiceImp implements binService
 {
     private final binRepository binRepository;

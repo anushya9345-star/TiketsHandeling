@@ -5,9 +5,11 @@ import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import com.Eployees.Data.EmployeeData.Entity.bin;
 import com.Eployees.Data.EmployeeData.Repository.binRepository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class employeeServiceImp implements employeeService
 {
     private final employeeRepository employeeRepository;
@@ -58,12 +60,17 @@ public class employeeServiceImp implements employeeService
     }
 
     @Override
-    public void deleteEmployeeById ( long empId)
+    public void deleteEmployeeById (long empId)
     {
         employee currentEmp = employeeRepository.findById(empId).orElseThrow(() -> new IllegalArgumentException("Employee doesn't exist"));
         bin AssignedBin = currentEmp.getBin();
-        AssignedBin.setIsActive(false);
-        employeeRepository.deleteById(empId);
+        if(AssignedBin != null)
+        {
+            AssignedBin.setEmployee(null);
+            AssignedBin.setIsActive(false);
+            currentEmp.setBin(null);
+        }
+        employeeRepository.delete(currentEmp);
     }
 
 }

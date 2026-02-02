@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface employeeRepository extends JpaRepository<employee, Long>
 {
-
     employee findBybin(bin bin);
+    void delete(employee employee);
 }

@@ -21,34 +21,35 @@ public class employeeController
         this.employeeRepository = employeeRepository;
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public ResponseEntity<employee> saveEmployee (@RequestBody employee employee)
     {
         return new ResponseEntity<>(employeeService.saveEmployee(employee), HttpStatus.CREATED);
     }
 
-    @PutMapping("/update/{empId}")
+    @PutMapping("/updateById/{empId}")
     public ResponseEntity<employee> updateEmployeeById(@PathVariable long empId, @RequestBody employee employee)
     {
         return new ResponseEntity<>(employeeService.updateEmployeeName(empId, employee),HttpStatus.OK);
     }
 
-    @GetMapping("/{empId}")
+    @GetMapping("/getById/{empId}")
     public ResponseEntity<employee> getEmpById(@PathVariable long empId)
     {
         return new ResponseEntity<>(employeeService.getEmpByEmpId(empId),HttpStatus.OK);
     }
 
-    @GetMapping("/binName")
+    @GetMapping("/getByBinName")
     public ResponseEntity<employee> getEmpByBin (@RequestParam String binName )
     {
         return new ResponseEntity<>(employeeService.getEmpByBinName(binName), HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete/{empId}")
-    public void deleteEmployeeById (@PathVariable long empId)
+    @DeleteMapping("/deleteById/{empId}")
+    public ResponseEntity<Void> deleteEmployeeById (@PathVariable long empId)
     {
-        employeeRepository.deleteById(empId);
+        employeeService.deleteEmployeeById(empId);
+        return ResponseEntity.ok().build();
     }
 
 }
