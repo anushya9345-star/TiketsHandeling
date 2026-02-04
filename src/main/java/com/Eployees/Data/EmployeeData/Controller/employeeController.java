@@ -1,5 +1,6 @@
 package com.Eployees.Data.EmployeeData.Controller;
 
+import com.Eployees.Data.EmployeeData.Entity.binEnum;
 import com.Eployees.Data.EmployeeData.Entity.employee;
 import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import com.Eployees.Data.EmployeeData.Service.employeeService;
@@ -13,12 +14,10 @@ import org.springframework.web.bind.annotation.*;
 public class employeeController
 {
     private final employeeService employeeService;
-    private final employeeRepository employeeRepository;
 
-    public employeeController(employeeService employeeService, employeeRepository employeeRepository)
+    public employeeController(employeeService employeeService)
     {
         this.employeeService = employeeService;
-        this.employeeRepository = employeeRepository;
     }
 
     @PostMapping("/create")
@@ -40,7 +39,7 @@ public class employeeController
     }
 
     @GetMapping("/getByBinName")
-    public ResponseEntity<employee> getEmpByBin (@RequestParam String binName )
+    public ResponseEntity<employee> getEmpByBin (@RequestParam binEnum binName )
     {
         return new ResponseEntity<>(employeeService.getEmpByBinName(binName), HttpStatus.OK);
     }

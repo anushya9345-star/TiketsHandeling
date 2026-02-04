@@ -1,6 +1,7 @@
 package com.Eployees.Data.EmployeeData.Controller;
 
 import com.Eployees.Data.EmployeeData.Entity.StatusEnum;
+import com.Eployees.Data.EmployeeData.Entity.binEnum;
 import com.Eployees.Data.EmployeeData.Entity.tickets;
 import com.Eployees.Data.EmployeeData.Service.ticketsService;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,7 @@ public class ticketsController
     }
 
     @GetMapping("/getByBinName")
-    public ResponseEntity<List<tickets>> getByBinNamee(@RequestParam String binName)
+    public ResponseEntity<List<tickets>> getByBinNamee(@RequestParam binEnum binName)
     {
         return new ResponseEntity<>(ticketsService.getByBin(binName), HttpStatus.OK);
     }
@@ -52,7 +53,7 @@ public class ticketsController
     }
 
     @GetMapping("/getByBin/{binName}/getByStatus")
-    public ResponseEntity<List<tickets>> getByBinAndStatus (@PathVariable String binName, @RequestParam StatusEnum status)
+    public ResponseEntity<List<tickets>> getByBinAndStatus (@PathVariable binEnum binName, @RequestParam StatusEnum status)
     {
         return new ResponseEntity<>(ticketsService.getByBinAndStatus(binName, status), HttpStatus.OK);
     }

@@ -37,7 +37,7 @@ public class dailySummaryServicesImp implements dailySummaryService
     @Override
     public dailySummary updateSummary (long empId, dailySummary summary)
     {
-        employee existing = employeeRepository.findById(empId).orElseThrow(() -> new IllegalArgumentException("Employee can't be find"));
+        employee existing = employeeRepository.findById(empId).orElseThrow(() -> new IllegalArgumentException("Summary can't be update as summary with this Id doesn't exist"));
         dailySummary existSummary = SummaryRepository.findById(empId).orElseThrow(()-> new IllegalArgumentException("Summary can't be find"));
         existSummary.setEmployee(existing);
         existSummary.setDailyCount(summary.getDailyCount());
@@ -48,7 +48,7 @@ public class dailySummaryServicesImp implements dailySummaryService
     @Override
     public dailySummary getSummaryByEmpId(long empId)
     {
-        return SummaryRepository.getReferenceById(empId);
+        return SummaryRepository.findById(empId).orElseThrow(()->  new IllegalArgumentException("Enter the correct Employee Id to get Summary"));
     }
 
     @Override

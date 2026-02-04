@@ -19,12 +19,15 @@ public class bin {
     @JsonManagedReference
     private employee employee;
 
-    private String binName;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private binEnum binName;
+
     Boolean isActive;
 
     public bin()
     {}
-    public bin(String binId, String binName, Boolean isActive)
+    public bin(String binId, binEnum binName, Boolean isActive)
     {
         this.binId = binId;
         this.binName = binName;
@@ -40,11 +43,11 @@ public class bin {
         this.binId = binId;
     }
 
-    public String getBinName ()
+    public binEnum getBinName ()
     {
         return binName;
     }
-    public void setBinName(String binName)
+    public void setBinName(binEnum binName)
     {
         this.binName = binName;
     }

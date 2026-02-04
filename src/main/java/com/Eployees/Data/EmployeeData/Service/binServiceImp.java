@@ -43,7 +43,7 @@ public class binServiceImp implements binService
     @Override
     public bin getBin (String binId)
     {
-        return binRepository.getReferenceById(binId);
+        return binRepository.findById(binId).orElseThrow(()-> new IllegalArgumentException("Check and enter the correct Bin ID"));
     }
 
     @Override

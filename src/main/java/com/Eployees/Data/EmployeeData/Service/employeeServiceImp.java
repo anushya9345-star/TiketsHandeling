@@ -1,5 +1,6 @@
 package com.Eployees.Data.EmployeeData.Service;
 
+import com.Eployees.Data.EmployeeData.Entity.binEnum;
 import com.Eployees.Data.EmployeeData.Entity.employee;
 import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import com.Eployees.Data.EmployeeData.Entity.bin;
@@ -40,23 +41,38 @@ public class employeeServiceImp implements employeeService
     public employee updateEmployeeName(long emplId, employee employee)
     {
         employee existing = employeeRepository.findById(emplId).orElseThrow(()->new RuntimeException("Employee can't find"));
-        existing.setEmpName(employee.getEmpName());
-        existing.setBin(employee.getBin());
+        if (employee.getEmpName() != null)
+        {
+            existing.setEmpName(employee.getEmpName());
+        }
+        if (employee.getBin() != null)
+        {
+            existing.getBin().setEmployee(null);
+            bin toBechangeBin = binRepository.findById(employee.getBin().getBinId()).orElseThrow(()-> new IllegalArgumentException("Bin cam't be find"));
+            existing.setBin(toBechangeBin);
+            toBechangeBin.setEmployee(existing);
+        }
         return employeeRepository.save(existing);
     }
 
     @Override
     public employee getEmpByEmpId(long empId)
     {
-        return employeeRepository.findById(empId).orElse(null);
+        return employeeRepository.findById(empId).orElseThrow(()-> new IllegalArgumentException("Employee Id miss match"));
     }
 
     @Override
     public employee getEmpByBinName
-            (String binName )
+            (binEnum binName )
     {
         bin existingBin = binRepository.findBybinName(binName);
-        return employeeRepository.findBybin(existingBin);
+        if (existingBin == null)
+        {
+            throw new IllegalArgumentException("Invalid BinName Kindly check it once");
+        }
+        else {
+            return employeeRepository.findBybin(existingBin);
+        }
     }
 
     @Override

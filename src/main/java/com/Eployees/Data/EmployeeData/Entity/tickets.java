@@ -113,7 +113,7 @@ public class tickets
     }
 
     @JsonProperty("binName")
-    public String getBinName ()
+    public binEnum getBinName ()
     {
         return bin != null ? bin.getBinName():null;
     }

@@ -1,9 +1,6 @@
 package com.Eployees.Data.EmployeeData.Service;
 
-import com.Eployees.Data.EmployeeData.Entity.StatusEnum;
-import com.Eployees.Data.EmployeeData.Entity.bin;
-import com.Eployees.Data.EmployeeData.Entity.employee;
-import com.Eployees.Data.EmployeeData.Entity.tickets;
+import com.Eployees.Data.EmployeeData.Entity.*;
 import com.Eployees.Data.EmployeeData.Repository.ticketsRepository;
 import com.Eployees.Data.EmployeeData.Repository.binRepository;
 import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
@@ -42,29 +39,30 @@ public class ticketsServiceImp implements ticketsService
     public tickets updateStatus (long requestId, tickets tickets)
     {
         tickets existing = ticketsRepository.findById(requestId).orElseThrow(()->new RuntimeException("Request Is doesn't match"));
-        existing.setStatus(tickets.getStatus());
 
-        if(tickets.getStatus() == StatusEnum.Pending  || tickets.getStatus() == StatusEnum.Close)
+        if (existing.getStatus() == StatusEnum.Resolved)
         {
+            throw new IllegalArgumentException("Status can't be change");
+        }
+        else {
+            existing.setStatus(tickets.getStatus());
 
-            if(tickets.getStatusReason()==null || tickets.getStatusReason().isBlank())
-            {
-                throw new IllegalArgumentException("Reason is required");
+            if (existing.getStatus() == StatusEnum.Pending || existing.getStatus() == StatusEnum.Close) {
+
+                if (tickets.getStatusReason() == null || tickets.getStatusReason().isBlank()) {
+                    throw new IllegalArgumentException("Reason is required");
+                }
+                existing.setStatusReason(tickets.getStatusReason());
+            } else if (existing.getStatus() == StatusEnum.Resolved) {
+                validateResolutionNotes(tickets.getNotes());
+                existing.setNotes(tickets.getNotes());
+                existing.setStatusReason(null);
+
+            } else {
+                existing.setStatusReason(null);
             }
-            existing.setStatusReason(tickets.getStatusReason());
+            return ticketsRepository.save(existing);
         }
-        else if (tickets.getStatus() == StatusEnum.Resolved)
-        {
-            validateResolutionNotes(tickets.getNotes());
-            existing.setNotes(tickets.getNotes());
-            existing.setStatusReason(null);
-
-        } else
-        {
-            existing.setStatusReason(null);
-        }
-
-        return ticketsRepository.save(existing);
     }
 
     @Override
@@ -81,7 +79,7 @@ public class ticketsServiceImp implements ticketsService
     }
 
     @Override
-    public List <tickets> getByBin (String binName)
+    public List <tickets> getByBin (binEnum binName)
     {
         bin assignedBin = binRepository.findBybinName(binName);
         return ticketsRepository.findBybin(assignedBin);
@@ -91,7 +89,7 @@ public class ticketsServiceImp implements ticketsService
     public List <tickets> getByEmpId(long empId)
     {
         employee existingEmp = employeeRepository.findById(empId).orElseThrow(()-> new IllegalArgumentException("Employee doesn't exist"));
-        String binName = existingEmp.getBinName();
+        binEnum binName = existingEmp.getBinName();
         bin assignedBin = binRepository.findBybinName(binName);
         return ticketsRepository.findBybin(assignedBin);
     }
@@ -102,9 +100,13 @@ public class ticketsServiceImp implements ticketsService
         return ticketsRepository.findBystatus(status);
     }
     @Override
-    public List <tickets> getByBinAndStatus (String binName, StatusEnum status)
+    public List <tickets> getByBinAndStatus (binEnum binName, StatusEnum status)
     {
         bin existingBin = binRepository.findBybinName(binName);
+        if (existingBin == null)
+        {
+            throw new IllegalArgumentException("Bin Can't Be Find");
+        }
         return ticketsRepository.findByBinAndStatus(existingBin,status);
     }
     @Override
