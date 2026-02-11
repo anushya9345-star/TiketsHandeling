@@ -11,6 +11,9 @@ import java.util.List;
 public class employee
 {
 
+    @OneToOne
+    @JsonManagedReference
+    private authUser authUser;
 
     @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -83,12 +86,20 @@ public class employee
         this.dailySummary = dailySummary;
     }
 
-
+    public authUser getAuthUser ()
+    {
+        return authUser;
+    }
+    public void setAuthUser(authUser authUser)
+    {
+        this.authUser = authUser;
+    }
     @JsonProperty("binName")
     public binEnum getBinName ()
     {
         return bin != null ? bin.getBinName() : null ;
     }
+
 
 
 }
