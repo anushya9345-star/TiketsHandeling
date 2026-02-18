@@ -1,15 +1,16 @@
 package com.Eployees.Data.EmployeeData.Entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
+import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
+import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
+@Data
 @Table (name = "Ticket_Details")
 
 public class tickets
@@ -32,10 +33,12 @@ public class tickets
 
     @JsonProperty("CreateDate")
     @CreationTimestamp
+    @JsonFormat(pattern = "YYYY-MM-DD HH:MM")
     private LocalDateTime createdDate;
 
     @JsonProperty("UpdatedDate")
     @UpdateTimestamp
+    @JsonFormat(pattern = "YYYY-MM-DD HH:MM")
     private LocalDateTime modifiedDate;
 
     @Column(nullable = false)
@@ -45,72 +48,6 @@ public class tickets
     private String notes;
 
     private String statusReason;
-
-
-
-    public tickets()
-    {}
-
-    public tickets (StatusEnum Status, bin bin,  String pendingReason)
-    {
-        this.status = Status;
-        this.bin = bin;
-        this.statusReason = pendingReason;
-    }
-
-    public long getRequestId()
-    {
-        return requestId;
-    }
-    public void setRequestId(long requestId)
-    {
-        this.requestId = requestId;
-    }
-
-    public String getRequestCode()
-    {
-        return requestCode;
-    }
-    public void setRequestCode(String requestCode)
-    {
-        this.requestCode = requestCode;
-    }
-
-    public StatusEnum getStatus()
-    {
-        return status;
-    }
-    public void setStatus(StatusEnum status)
-    {
-        this.status = status;
-    }
-
-    public String getStatusReason()
-    {
-        return statusReason;
-    }
-    public void setStatusReason(String statusReason)
-    {
-        this.statusReason = statusReason;
-    }
-
-    public String getNotes ()
-    {
-        return notes;
-    }
-    public void setNotes( String notes)
-    {
-        this.notes = notes;
-    }
-
-    public bin getBin ()
-    {
-        return bin;
-    }
-    public void setBin (bin bin)
-    {
-        this.bin = bin;
-    }
 
     @JsonProperty("binName")
     public binEnum getBinName ()

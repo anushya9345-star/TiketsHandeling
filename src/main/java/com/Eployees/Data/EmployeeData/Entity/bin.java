@@ -1,11 +1,14 @@
 package com.Eployees.Data.EmployeeData.Entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.List;
 
 @Entity
+@Data
 public class bin {
 
     @Id
@@ -34,48 +37,9 @@ public class bin {
         this.isActive = isActive;
     }
 
-    public String getBinId()
+    @JsonProperty("EmpName")
+    public String getEmpName ()
     {
-        return binId;
-    }
-    public void setBinId(String binId)
-    {
-        this.binId = binId;
-    }
-
-    public binEnum getBinName ()
-    {
-        return binName;
-    }
-    public void setBinName(binEnum binName)
-    {
-        this.binName = binName;
-    }
-
-    public Boolean getIsActive ()
-    {
-        return isActive;
-    }
-    public void setIsActive(Boolean isActive)
-    {
-        this.isActive = isActive;
-    }
-
-    public employee getEmployee()
-    {
-        return employee;
-    }
-    public void setEmployee( employee employee)
-    {
-        this.employee = employee;
-    }
-
-    public List <tickets> getRequestsList ()
-    {
-        return requestsList;
-    }
-    public void setRequestsList (List <tickets> requestsList)
-    {
-        this.requestsList = requestsList;
+        return employee != null ? employee.getEmpName():null;
     }
 }

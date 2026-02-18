@@ -17,7 +17,7 @@ import static javax.crypto.Cipher.SECRET_KEY;
 public class jwtUtil {
 
     private final String secret = "This is secret String type data that i have created";
-    private final long Expiration = 1000 * 60;
+    private final long Expiration = 1000 * 60 * 60;
     private final Key securityKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
     public String generateToken (String userId)

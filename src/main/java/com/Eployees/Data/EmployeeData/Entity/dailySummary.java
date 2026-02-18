@@ -1,12 +1,15 @@
 package com.Eployees.Data.EmployeeData.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.Data;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Data
 public class dailySummary
 {
     @OneToOne
@@ -24,48 +27,10 @@ public class dailySummary
     private int dailyCount;
     private int totalCount;
 
-    public dailySummary(){}
-
-    public dailySummary(employee employee, int dailyCount)
+    @JsonProperty("Employee")
+    public String getEmpName ()
     {
-        this.employee = employee;
-        this.dailyCount = dailyCount;
-    }
-
-    public employee getEmployee()
-    {
-        return employee;
-    }
-    public void setEmployee(employee employee)
-    {
-        this.employee = employee;
-    }
-
-    public long getEmpId ()
-    {
-        return empId;
-    }
-    public void setEmpId (long empId)
-    {
-        this.empId = empId;
-    }
-
-    public int getDailyCount()
-    {
-        return dailyCount;
-    }
-    public void setDailyCount(int dailyCount)
-    {
-        this.dailyCount = dailyCount;
-    }
-
-    public int getTotalCount()
-    {
-        return totalCount;
-    }
-    public void setTotalCount(int totalCount)
-    {
-        this.totalCount = totalCount;
+        return employee != null ? employee.getEmpName():null;
     }
 
 }

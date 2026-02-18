@@ -1,24 +1,27 @@
 package com.Eployees.Data.EmployeeData.Controller;
 
+import com.Eployees.Data.EmployeeData.Dto.employeeDto;
 import com.Eployees.Data.EmployeeData.Entity.binEnum;
 import com.Eployees.Data.EmployeeData.Entity.employee;
+import com.Eployees.Data.EmployeeData.Mappers.employeeMapping;
+import com.Eployees.Data.EmployeeData.Repository.binRepository;
 import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import com.Eployees.Data.EmployeeData.Service.employeeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/employee")
 public class employeeController
 {
     private final employeeService employeeService;
-
-    public employeeController(employeeService employeeService)
-    {
-        this.employeeService = employeeService;
-    }
+    private final employeeRepository employeeRepository;
+    private final employeeMapping employeeMapping;
+    private final binRepository binRepository;
 
     @PostMapping("/create")
     public ResponseEntity<employee> saveEmployee (@RequestBody employee employee)
@@ -33,15 +36,17 @@ public class employeeController
     }
 
     @GetMapping("/getById/{empId}")
-    public ResponseEntity<employee> getEmpById(@PathVariable long empId)
+    public ResponseEntity<employeeDto> getEmpById(@PathVariable long empId)
     {
-        return new ResponseEntity<>(employeeService.getEmpByEmpId(empId),HttpStatus.OK);
+        employee existingEmp = employeeRepository.findById(empId).orElseThrow(()-> new IllegalArgumentException("Employee can't be find"));
+        return ResponseEntity.ok(employeeMapping.empToDo(existingEmp));
     }
 
     @GetMapping("/getByBinName")
-    public ResponseEntity<employee> getEmpByBin (@RequestParam binEnum binName )
+    public ResponseEntity<employeeDto> getEmpByBin (@RequestParam binEnum binName )
     {
-        return new ResponseEntity<>(employeeService.getEmpByBinName(binName), HttpStatus.OK);
+        employee existingEmp = employeeRepository.findBybin(binRepository.findBybinName(binName));
+        return ResponseEntity.ok(employeeMapping.empToDo(existingEmp));
     }
 
     @DeleteMapping("/deleteById/{empId}")

@@ -2,11 +2,13 @@ package com.Eployees.Data.EmployeeData.Entity;
 
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.List;
 
 @Entity
 @Table(name ="Emp_Details")
+@Data
 @JsonIgnoreProperties({"DailySummary","empid"})
 public class employee
 {
@@ -41,59 +43,6 @@ public class employee
         this.empName = empName;
     }
 
-    public String getEmpName()
-    {
-        return empName;
-    }
-    public void setEmpName(String Emp_Name)
-    {
-        this.empName = Emp_Name;
-    }
-
-    public String getEcnNum ()
-    {
-        return ecnNum;
-    }
-    public void setEcnNum(String ecnNum)
-    {
-        this.ecnNum = ecnNum;
-    }
-
-    public long getEmpId()
-    {
-        return empId;
-    }
-    public void setEmpId(long empId)
-    {
-        this.empId = empId;
-    }
-
-    public bin getBin ()
-    {
-        return bin;
-    }
-    public void setBin (bin bin)
-    {
-        this.bin = bin;
-    }
-
-    public dailySummary getSummary ()
-    {
-        return dailySummary;
-    }
-    public void setDailySummary(dailySummary dailySummary)
-    {
-        this.dailySummary = dailySummary;
-    }
-
-    public authUser getAuthUser ()
-    {
-        return authUser;
-    }
-    public void setAuthUser(authUser authUser)
-    {
-        this.authUser = authUser;
-    }
     @JsonProperty("binName")
     public binEnum getBinName ()
     {
