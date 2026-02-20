@@ -1,7 +1,9 @@
 package com.Eployees.Data.EmployeeData.Service;
 
+import com.Eployees.Data.EmployeeData.Dto.employeeDto;
 import com.Eployees.Data.EmployeeData.Entity.binEnum;
 import com.Eployees.Data.EmployeeData.Entity.employee;
+import com.Eployees.Data.EmployeeData.Mappers.employeeMapping;
 import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import com.Eployees.Data.EmployeeData.Entity.bin;
 import com.Eployees.Data.EmployeeData.Repository.binRepository;
@@ -15,15 +17,17 @@ public class employeeServiceImp implements employeeService
 {
     private final employeeRepository employeeRepository;
     private final binRepository binRepository;
+    private final employeeMapping employeeMapping;
 
-    public employeeServiceImp(employeeRepository employeeRepository, binRepository binRepository)
+    public employeeServiceImp(employeeRepository employeeRepository, binRepository binRepository, employeeMapping employeeMapping)
     {
         this.employeeRepository = employeeRepository;
         this.binRepository = binRepository;
+        this.employeeMapping = employeeMapping;
     }
 
     @Override
-    public employee saveEmployee(employee employee)
+    public employeeDto saveEmployee(employee employee)
     {
 
         employee savedEmp = employeeRepository.save(employee);
@@ -34,11 +38,12 @@ public class employeeServiceImp implements employeeService
         assignedBin.setEmployee(savedEmp);
         assignedBin.setIsActive(true);
         binRepository.save(assignedBin);
-        return employeeRepository.save(savedEmp);
+        employeeRepository.save(savedEmp);
+        return employeeMapping.empToDo(savedEmp);
     }
 
     @Override
-    public employee updateEmployeeName(long emplId, employee employee)
+    public employeeDto updateEmployeeName(long emplId, employee employee)
     {
         employee existing = employeeRepository.findById(emplId).orElseThrow(()->new RuntimeException("Employee can't find"));
         if (employee.getEmpName() != null)
@@ -52,7 +57,8 @@ public class employeeServiceImp implements employeeService
             existing.setBin(toBechangeBin);
             toBechangeBin.setEmployee(existing);
         }
-        return employeeRepository.save(existing);
+        employeeRepository.save(existing);
+        return employeeMapping.empToDo(existing);
     }
 
     @Override

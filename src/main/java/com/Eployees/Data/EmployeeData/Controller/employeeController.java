@@ -24,13 +24,13 @@ public class employeeController
     private final binRepository binRepository;
 
     @PostMapping("/create")
-    public ResponseEntity<employee> saveEmployee (@RequestBody employee employee)
+    public ResponseEntity<employeeDto> saveEmployee (@RequestBody employee employee)
     {
         return new ResponseEntity<>(employeeService.saveEmployee(employee), HttpStatus.CREATED);
     }
 
     @PutMapping("/updateById/{empId}")
-    public ResponseEntity<employee> updateEmployeeById(@PathVariable long empId, @RequestBody employee employee)
+    public ResponseEntity<employeeDto> updateEmployeeById(@PathVariable long empId, @RequestBody employee employee)
     {
         return new ResponseEntity<>(employeeService.updateEmployeeName(empId, employee),HttpStatus.OK);
     }
