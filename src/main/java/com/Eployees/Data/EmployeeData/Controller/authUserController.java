@@ -9,6 +9,7 @@ import com.Eployees.Data.EmployeeData.util.jwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,9 +41,17 @@ public class authUserController {
       return new ResponseEntity<>(authUserService.loginWithId(user), HttpStatus.ACCEPTED);
     }
 
+    @PreAuthorize("hasAnyRole('Admin','Engineer')")
     @PostMapping("/changePassword/{empId}")
     public ResponseEntity<?> changePassword (@PathVariable long empId, @RequestBody changePassword user)
     {
         return new ResponseEntity<>(authUserService.changePassword(empId, user),HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('Admin')")
+    @PutMapping("roleChange/{empId}")
+    public ResponseEntity<authUser> changeRole (@PathVariable long empId, @RequestBody authUser user)
+    {
+        return new ResponseEntity<>(authUserService.changeRole(empId,user), HttpStatus.ACCEPTED);
     }
 }

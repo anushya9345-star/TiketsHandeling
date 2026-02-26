@@ -1,5 +1,6 @@
 package com.Eployees.Data.EmployeeData.util;
 
+import com.Eployees.Data.EmployeeData.Entity.roleEnum;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,6 +11,8 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static javax.crypto.Cipher.SECRET_KEY;
 
@@ -20,9 +23,13 @@ public class jwtUtil {
     private final long Expiration = 1000 * 60 * 60;
     private final Key securityKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
-    public String generateToken (String userId)
+    public String generateToken (String userId, roleEnum role)
     {
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role.name());
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(userId)
                 .setIssuedAt(new Date (System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + Expiration))
@@ -33,16 +40,27 @@ public class jwtUtil {
     public String extractUser (String token)
     {
         return Jwts.parser()
-                .setSigningKey(securityKey)
+                .verifyWith((SecretKey) securityKey)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
+                .getPayload()
                 .getSubject();
+    }
+
+    public String extractRole (String token)
+    {
+        return Jwts.parser()
+                .verifyWith((SecretKey) securityKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
     }
     public boolean validateJwtToken (String token)
     {
         try {
-             extractUser(token);
+            extractUser(token);
+            extractRole(token);
             return true;
         }
 

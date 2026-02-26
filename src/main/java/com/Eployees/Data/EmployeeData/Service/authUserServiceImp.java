@@ -1,6 +1,5 @@
 package com.Eployees.Data.EmployeeData.Service;
 
-import com.Eployees.Data.EmployeeData.Dto.authUserDto;
 import com.Eployees.Data.EmployeeData.Dto.changePassword;
 import com.Eployees.Data.EmployeeData.Entity.authUser;
 import com.Eployees.Data.EmployeeData.Entity.employee;
@@ -8,12 +7,15 @@ import com.Eployees.Data.EmployeeData.Repository.authUserRepository;
 import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import com.Eployees.Data.EmployeeData.util.jwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class authUserServiceImp implements authUserService {
+public class authUserServiceImp implements authUserService, UserDetailsService {
 
     private final authUserRepository authUserRepository;
     private final employeeRepository employeeRepository;
@@ -41,12 +43,11 @@ public class authUserServiceImp implements authUserService {
     public String loginWithId (authUser user)
     {
         authUser existingUser = authUserRepository.findByuserId(user.getUserId()).orElseThrow(()->new IllegalArgumentException("Invalid Id !!"));
-        System.out.println(user.getPassword());
         if (! passwordEncoder.matches(user.getPassword(), existingUser.getPassword()))
         {
             throw new SecurityException("Invalid Password !!");
         }
-        String token = jwtUtil.generateToken(user.getUserId());
+        String token = jwtUtil.generateToken(user.getUserId(),existingUser.getRole());
         return token;
     }
 
@@ -61,4 +62,19 @@ public class authUserServiceImp implements authUserService {
         existingUser.setPassword(passwordEncoder.encode(user.getNewPassword()));
         return authUserRepository.save(existingUser);
     }
+
+    @Override
+    public authUser changeRole (long empId, authUser user)
+    {
+        authUser existingUser = authUserRepository.findById(empId).orElseThrow(()->new UsernameNotFoundException("User Not Found"));
+        existingUser.setRole(user.getRole());
+        return authUserRepository.save(existingUser);
+     }
+
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return authUserRepository.findByuserId(username).orElseThrow(()->new UsernameNotFoundException("User Not Found:"+ username));
+    }
+
 }

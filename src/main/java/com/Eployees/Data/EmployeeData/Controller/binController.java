@@ -4,6 +4,7 @@ import com.Eployees.Data.EmployeeData.Dto.binDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.Eployees.Data.EmployeeData.Service.binService;
 import com.Eployees.Data.EmployeeData.Entity.bin;
@@ -21,18 +22,21 @@ public class binController
     private final binRepository binRepository;
     private final binMapping binMapping;
 
+    @PreAuthorize("hasRole('Admin')")
     @PostMapping("/create")
     public ResponseEntity<bin> createBin (@RequestBody bin bin)
     {
         return new ResponseEntity<>(binService.createBin(bin), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/updateBin/{binId}")
     public ResponseEntity<bin> updateBin (@PathVariable String binId, @RequestBody bin bin)
     {
         return new ResponseEntity<>(binService.updateBin(binId, bin), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('Admin', 'Engineer')")
     @GetMapping("/getById/{binId}")
     public ResponseEntity<binDto> getBin (@PathVariable String binId)
     {
@@ -42,6 +46,7 @@ public class binController
 
     }
 
+    @PreAuthorize("hasAnyRole('Admin', 'Engineer')")
     @GetMapping ("/getAllBins")
     public List<binDto> getAllBins ()
     {
@@ -51,6 +56,7 @@ public class binController
                 .toList();
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/delete/{binId}")
     public void deleteBin ( @PathVariable String binId)
     {

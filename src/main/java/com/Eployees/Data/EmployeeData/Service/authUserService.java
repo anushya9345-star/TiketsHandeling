@@ -11,4 +11,5 @@ public interface authUserService {
     authUser getUser (long empId);
     String loginWithId (authUser user);
     authUser changePassword (long empId, changePassword user);
+    authUser changeRole (long empId, authUser user);
 }

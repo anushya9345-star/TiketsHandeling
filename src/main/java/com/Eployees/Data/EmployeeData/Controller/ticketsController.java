@@ -6,6 +6,7 @@ import com.Eployees.Data.EmployeeData.Entity.tickets;
 import com.Eployees.Data.EmployeeData.Service.ticketsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,48 +23,56 @@ public class ticketsController
         this.ticketsService = ticketsService;
     }
 
+    @PreAuthorize("hasAnyRole('Admin','Engineer', 'User')")
     @PostMapping("/create")
     public ResponseEntity<tickets> createTickets (@RequestBody tickets tickets)
     {
         return new ResponseEntity<>(ticketsService.createRequest(tickets), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('Admin', 'Engineer')")
     @PutMapping("/updateStatusById/{requestId}")
     public ResponseEntity<tickets>  updateStatus (@PathVariable long requestId, @RequestBody tickets tickets)
     {
          return new ResponseEntity<>(ticketsService.updateStatus(requestId, tickets), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('Admin', 'Engineer')")
     @PutMapping("/updateBinById/{requestId}")
     public ResponseEntity<tickets>  updateBin (@PathVariable long requestId, @RequestBody tickets ticket)
     {
         return new ResponseEntity<>(ticketsService.updateBin(requestId, ticket), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('Admin','Engineer')")
     @GetMapping("/getByBinName")
     public ResponseEntity<List<tickets>> getByBinNamee(@RequestParam binEnum binName)
     {
         return new ResponseEntity<>(ticketsService.getByBin(binName), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('Admin','Engineer')")
     @GetMapping("/getById")
     public ResponseEntity<List<tickets>> getByEmpId (@RequestParam long empId)
     {
         return new ResponseEntity<>(ticketsService.getByEmpId(empId), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('Admin', 'Engineer')")
     @GetMapping("/getByBin/{binName}/getByStatus")
     public ResponseEntity<List<tickets>> getByBinAndStatus (@PathVariable binEnum binName, @RequestParam StatusEnum status)
     {
         return new ResponseEntity<>(ticketsService.getByBinAndStatus(binName, status), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('Admin','Engineer')")
     @GetMapping("/getByStatus")
     public ResponseEntity<List <tickets>> getByStatus (@RequestParam StatusEnum status)
     {
         return new ResponseEntity<>(ticketsService.getByStatus(status), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/deleteById")
     public void deleteById (@RequestParam long requestId)
     {
