@@ -49,6 +49,4 @@ public class employee
         return bin != null ? bin.getBinName() : null ;
     }
 
-
-
 }

@@ -54,4 +54,5 @@ public class authUserController {
     {
         return new ResponseEntity<>(authUserService.changeRole(empId,user), HttpStatus.ACCEPTED);
     }
+
 }
