@@ -15,4 +15,5 @@ public interface ticketsRepository extends JpaRepository <tickets, Long>
     long getNextSequence ();
     List<tickets> findBystatus (StatusEnum status);
     List<tickets> findByBinAndStatus (bin bin, StatusEnum status);
+    long countByStatus(StatusEnum status);
 }
