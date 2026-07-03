@@ -1,6 +1,8 @@
 package com.Eployees.Data.EmployeeData.Controller;
 
 import com.Eployees.Data.EmployeeData.Dto.binDto;
+import com.Eployees.Data.EmployeeData.Entity.binEnum;
+import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ public class binController
     private final binService binService;
     private final binRepository binRepository;
     private final binMapping binMapping;
+    private final employeeRepository employeeRepository;
 
     @PreAuthorize("hasRole('Admin')")
     @PostMapping("/create")
@@ -54,6 +57,38 @@ public class binController
                 .stream()
                 .map(binMapping :: binTodo)
                 .toList();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchBin (@RequestParam(required = false) binEnum binName,
+                                        @RequestParam(required = false) String binId,
+                                        @RequestParam(required = false) String empName)
+    {
+        bin existingBin = null ;
+        if (binName != null )
+        {
+            existingBin = binRepository.findBybinName(binName);
+        }
+        else if (binId != null && !binId.isBlank())
+        {
+            existingBin = binRepository.findById(binId).orElseThrow(()-> new IllegalArgumentException("Bin Cannot be found which is associate with this Bin Id, Kindly check the Bin ID once and try again"));
+        }
+        else if (empName != null && !empName.isBlank())
+        {
+            existingBin = binRepository.findByEmployee(employeeRepository.findByEmpName(empName));
+        }
+
+        if (binName == null && binId == null && empName == null)
+        {
+            return ResponseEntity.badRequest().body("Please Enter the correcr parameter");
+        }
+
+        if(existingBin == null)
+        {
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("No results :(");
+        }
+
+        return ResponseEntity.ok(binMapping.binTodo(existingBin));
     }
 
     @PreAuthorize("hasRole('Admin')")

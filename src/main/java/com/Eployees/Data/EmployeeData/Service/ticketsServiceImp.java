@@ -99,6 +99,7 @@ public class ticketsServiceImp implements ticketsService
     {
         return ticketsRepository.findBystatus(status);
     }
+
     @Override
     public List <tickets> getByBinAndStatus (binEnum binName, StatusEnum status)
     {
@@ -109,6 +110,7 @@ public class ticketsServiceImp implements ticketsService
         }
         return ticketsRepository.findByBinAndStatus(existingBin,status);
     }
+
     @Override
     public void deleteById (long requestId)
     {

@@ -33,12 +33,12 @@ public class tickets
 
     @JsonProperty("CreateDate")
     @CreationTimestamp
-    @JsonFormat(pattern = "YYYY-MM-DD HH:MM")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdDate;
 
     @JsonProperty("UpdatedDate")
     @UpdateTimestamp
-    @JsonFormat(pattern = "YYYY-MM-DD HH:MM")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime modifiedDate;
 
     @Column(nullable = false)

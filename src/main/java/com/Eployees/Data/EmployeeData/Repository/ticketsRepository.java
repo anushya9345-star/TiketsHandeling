@@ -6,6 +6,8 @@ import com.Eployees.Data.EmployeeData.Entity.tickets;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ticketsRepository extends JpaRepository <tickets, Long>
@@ -16,4 +18,6 @@ public interface ticketsRepository extends JpaRepository <tickets, Long>
     List<tickets> findBystatus (StatusEnum status);
     List<tickets> findByBinAndStatus (bin bin, StatusEnum status);
     long countByStatus(StatusEnum status);
+    List<tickets> findByCreatedDateBetween (LocalDateTime start, LocalDateTime end);
+    List<tickets> findByModifiedDateBetween (LocalDateTime start, LocalDateTime end);
 }

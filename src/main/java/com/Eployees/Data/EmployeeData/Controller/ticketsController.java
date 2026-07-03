@@ -3,13 +3,20 @@ package com.Eployees.Data.EmployeeData.Controller;
 import com.Eployees.Data.EmployeeData.Entity.StatusEnum;
 import com.Eployees.Data.EmployeeData.Entity.binEnum;
 import com.Eployees.Data.EmployeeData.Entity.tickets;
+import com.Eployees.Data.EmployeeData.Repository.binRepository;
+import com.Eployees.Data.EmployeeData.Repository.ticketsRepository;
 import com.Eployees.Data.EmployeeData.Service.ticketsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/tickets")
@@ -18,9 +25,13 @@ public class ticketsController
 {
 
     private final ticketsService ticketsService;
-    public ticketsController (ticketsService ticketsService)
+    private final ticketsRepository ticketsRepository;
+    private final binRepository binRepository;
+    public ticketsController (ticketsService ticketsService, ticketsRepository ticketsRepository, binRepository binRepository)
     {
         this.ticketsService = ticketsService;
+        this.ticketsRepository = ticketsRepository;
+        this.binRepository = binRepository;
     }
 
     @PreAuthorize("hasAnyRole('Admin','Engineer', 'User')")
@@ -79,4 +90,52 @@ public class ticketsController
         ticketsService.deleteById(requestId);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity <?> searchTickets(@RequestParam(required = false) binEnum binName,
+                                                  @RequestParam(required = false) String binId,
+                                                  @RequestParam(required = false) StatusEnum status,
+                                                  @RequestParam(required = false) String createdDate,
+                                                  @RequestParam(required = false) String modifiedDate)
+    {
+        List <tickets> existing = null;
+        if (binName != null)
+        {
+            existing = ticketsRepository.findBybin(binRepository.findBybinName(binName));
+        }
+        else if (binId != null && !binId.isBlank())
+        {
+            existing = ticketsRepository.findBybin(binRepository.findById(binId).orElseThrow(()-> new IllegalArgumentException("Bin Id Doesn't Match :(")));
+        }
+        else if (status != null)
+        {
+            existing = ticketsRepository.findBystatus(status);
+        }
+        else if (createdDate != null)
+        {
+            LocalDate date  = LocalDate.parse(createdDate);
+            LocalDateTime start = date.atStartOfDay();
+            LocalDateTime end = date.atTime(LocalTime.MAX);
+            existing = ticketsRepository.findByCreatedDateBetween(start, end);
+        }
+        else if (modifiedDate != null)
+        {
+            LocalDate date = LocalDate.parse(modifiedDate);
+            LocalDateTime start = date.atStartOfDay();
+            LocalDateTime end = date.atTime(LocalTime.MAX);
+            existing = ticketsRepository.findByModifiedDateBetween(start, end);
+        }
+
+        if (binName == null && binId == null && status == null && createdDate == null && modifiedDate == null)
+        {
+            return ResponseEntity.badRequest().body("Enter the correct parameter !!");
+        }
+
+        if (existing == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ticket's with requested match can't be found :(");
+        }
+        else {
+            return ResponseEntity.ok().body(existing);
+        }
+    }
 }

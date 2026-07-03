@@ -62,4 +62,42 @@ public class employeeController
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('Admin')")
+    @GetMapping("/search")
+    public ResponseEntity<?> searchEmployees (@RequestParam(required = false) String empName,
+                                                   @RequestParam(required = false) String ecnNum,
+                                                   @RequestParam(required = false) binEnum binName,
+                                                   @RequestParam(required = false) String binId)
+    {
+        employee existingEmp = null;
+        if(empName != null && !empName.isBlank())
+        {
+            existingEmp = employeeRepository.findByEmpName(empName);
+        }
+        else if (ecnNum != null && !ecnNum.isBlank())
+        {
+            existingEmp = employeeRepository.findByEcnNum(ecnNum);
+        }
+        else if (binName != null )
+        {
+            existingEmp = employeeRepository.findBybin(binRepository.findBybinName(binName));
+        }
+        else if (binId != null && !binId.isBlank())
+        {
+            existingEmp = employeeRepository.findBybin(binRepository.findById(binId).orElseThrow(() ->new IllegalArgumentException("Bin id is not existing :(")));
+        }
+
+        if (empName == null  && ecnNum == null  && binName == null && binId == null)
+        {
+            return ResponseEntity.badRequest().body("Enter the correct parameter!!!");
+        }
+        if (existingEmp != null) {
+            return ResponseEntity.ok(employeeMapping.empToDo(existingEmp));
+        }
+        else
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee can't be found :(");
+        }
+    }
+
 }
