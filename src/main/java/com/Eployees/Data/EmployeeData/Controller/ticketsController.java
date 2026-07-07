@@ -1,11 +1,15 @@
 package com.Eployees.Data.EmployeeData.Controller;
 
 import com.Eployees.Data.EmployeeData.Entity.StatusEnum;
+import com.Eployees.Data.EmployeeData.Entity.bin;
 import com.Eployees.Data.EmployeeData.Entity.binEnum;
 import com.Eployees.Data.EmployeeData.Entity.tickets;
 import com.Eployees.Data.EmployeeData.Repository.binRepository;
 import com.Eployees.Data.EmployeeData.Repository.ticketsRepository;
 import com.Eployees.Data.EmployeeData.Service.ticketsService;
+
+import com.Eployees.Data.EmployeeData.Specification.ticketSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,9 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/tickets")
@@ -137,5 +139,58 @@ public class ticketsController
         else {
             return ResponseEntity.ok().body(existing);
         }
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity <?> getTicketsByFiltering (@RequestParam(required = false) StatusEnum status,
+                                                @RequestParam(required = false) String binId,
+                                                @RequestParam(required = false) binEnum binName,
+                                                @RequestParam(required = false) String createdDate,
+                                                @RequestParam(required = false) String modifiedDate )
+    {
+        System.out.println("Code entered here");
+        Specification<tickets> spec = ((root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
+        if(status != null)
+        {
+            System.out.println("Status is stored !");
+            spec = spec.and(ticketSpecification.hasStatus(status));
+        }
+        if(binId != null)
+        {
+            bin existing = binRepository.findById(binId).orElseThrow(()-> new IllegalArgumentException("Bin cannot be found :("));
+            spec = spec.and(ticketSpecification.hasBin(existing));
+        }
+        if(binName != null)
+        {
+            bin existing = binRepository.findBybinName(binName);
+            spec = spec.and(ticketSpecification.hasBin(existing));
+        }
+        if(createdDate != null)
+        {
+            LocalDate date = LocalDate.parse(createdDate);
+            LocalDateTime start= date.atStartOfDay();
+            LocalDateTime end = date.atTime(LocalTime.MAX);
+            spec = spec.and(ticketSpecification.hasCreatedDate(start, end));
+        }
+        if (modifiedDate != null && !modifiedDate.isBlank())
+        {
+            LocalDate date = LocalDate.parse(modifiedDate);
+            LocalDateTime start = date.atStartOfDay();
+            LocalDateTime end = date.atTime(LocalTime.MAX);
+            spec = spec.and(ticketSpecification.hasModifiedDate(start, end));
+        }
+
+        if(status == null && binId == null && binName == null && createdDate == null && modifiedDate == null)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Enter the correct parameter !!");
+        }
+
+        List <tickets> result = ticketsRepository.findAll(spec);
+        if(result.isEmpty())
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Data Not Found :(");
+        }
+
+        return ResponseEntity.ok(result);
     }
 }

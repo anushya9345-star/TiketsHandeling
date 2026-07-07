@@ -9,6 +9,9 @@ import com.Eployees.Data.EmployeeData.Entity.bin;
 import com.Eployees.Data.EmployeeData.Repository.binRepository;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -79,6 +82,13 @@ public class employeeServiceImp implements employeeService
         else {
             return employeeRepository.findBybin(existingBin);
         }
+    }
+
+    @Override
+    public Page<employee> getEmployeeAsPage (int page, int size)
+    {
+        Pageable pageable = PageRequest.of(page, size);
+        return employeeRepository.findAll(pageable);
     }
 
     @Override

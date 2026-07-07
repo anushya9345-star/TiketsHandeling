@@ -1,6 +1,7 @@
 package com.Eployees.Data.EmployeeData.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class dailySummary
     private long empId;
 
     @UpdateTimestamp
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime date;
 
     private int dailyCount;

@@ -8,6 +8,7 @@ import com.Eployees.Data.EmployeeData.Repository.binRepository;
 import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import com.Eployees.Data.EmployeeData.Service.employeeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,6 +53,13 @@ public class employeeController
     {
         employee existingEmp = employeeRepository.findBybin(binRepository.findBybinName(binName));
         return ResponseEntity.ok(employeeMapping.empToDo(existingEmp));
+    }
+
+    @GetMapping("/empByPage")
+    public ResponseEntity<Page<employee>> getEmployeeAsPage (@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam (defaultValue = "10") int size)
+    {
+        return ResponseEntity.ok(employeeService.getEmployeeAsPage(page, size));
     }
 
     @PreAuthorize("hasRole('Admin')")

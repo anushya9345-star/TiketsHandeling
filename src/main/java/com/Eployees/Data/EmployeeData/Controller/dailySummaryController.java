@@ -6,6 +6,8 @@ import com.Eployees.Data.EmployeeData.Repository.binRepository;
 import com.Eployees.Data.EmployeeData.Repository.dailySummaryRepository;
 import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import com.Eployees.Data.EmployeeData.Service.dailySummaryService;
+import com.Eployees.Data.EmployeeData.Specification.dailySummarySpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -81,6 +83,43 @@ public class dailySummaryController
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found !!");
         }
         return ResponseEntity.ok(summary);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity <?> getSummaryByFilter(@RequestParam(required = false) String date,
+                                                 @RequestParam(required = false) Integer belowCount,
+                                                 @RequestParam(required = false) Integer aboveCount)
+    {
+        Specification <dailySummary> spec = ((root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
+        if(date != null)
+        {
+            LocalDate updatedDate = LocalDate.parse(date);
+            LocalDateTime start = updatedDate.atStartOfDay();
+            LocalDateTime end = updatedDate.atTime(LocalTime.MAX);
+            spec = spec.and(dailySummarySpecification.hasDate(start, end));
+        }
+        if(belowCount != null )
+        {
+            spec = spec.and(dailySummarySpecification.hasBelowDailyCount(belowCount));
+        }
+        if(aboveCount != null)
+        {
+            spec = spec.and(dailySummarySpecification.hasAboveDailySummary(aboveCount));
+        }
+
+        if(date == null && belowCount == null && aboveCount == null)
+        {
+            return ResponseEntity.badRequest().body("Enter the proper Parameter !!");
+        }
+
+        List<dailySummary> result = dailySummaryRepository.findAll(spec);
+
+        if(result.isEmpty())
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No date to show :(");
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/searchByDate/{date}")
