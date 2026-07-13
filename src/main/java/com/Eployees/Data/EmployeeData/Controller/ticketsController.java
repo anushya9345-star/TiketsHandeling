@@ -9,6 +9,9 @@ import com.Eployees.Data.EmployeeData.Repository.ticketsRepository;
 import com.Eployees.Data.EmployeeData.Service.ticketsService;
 
 import com.Eployees.Data.EmployeeData.Specification.ticketSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -143,16 +146,17 @@ public class ticketsController
 
     @GetMapping("/filter")
     public ResponseEntity <?> getTicketsByFiltering (@RequestParam(required = false) StatusEnum status,
-                                                @RequestParam(required = false) String binId,
-                                                @RequestParam(required = false) binEnum binName,
-                                                @RequestParam(required = false) String createdDate,
-                                                @RequestParam(required = false) String modifiedDate )
+                                                     @RequestParam(required = false) String binId,
+                                                     @RequestParam(required = false) binEnum binName,
+                                                     @RequestParam(required = false) String createdDate,
+                                                     @RequestParam(required = false) String modifiedDate,
+                                                     @RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "10") int size)
     {
-        System.out.println("Code entered here");
+        Pageable pageable = PageRequest.of(page, size);
         Specification<tickets> spec = ((root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
         if(status != null)
         {
-            System.out.println("Status is stored !");
             spec = spec.and(ticketSpecification.hasStatus(status));
         }
         if(binId != null)
@@ -185,7 +189,7 @@ public class ticketsController
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Enter the correct parameter !!");
         }
 
-        List <tickets> result = ticketsRepository.findAll(spec);
+        Page<tickets> result = ticketsRepository.findAll(spec, pageable);
         if(result.isEmpty())
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Data Not Found :(");
