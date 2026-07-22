@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RimFloor Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+          --steel-900:#1b232b;
+          --steel-800:#232e38;
+          --steel-700:#2f3c47;
+          --floor-50:#f2f4f6;
+          --floor-100:#e7eaed;
+          --floor-200:#d7dce0;
+          --ink-900:#1b232b;
+          --ink-500:#5b6b76;
+          --blue:#2c5f8a;
+          --blue-dim:#e7eef4;
+          --amber:#c8781f;
+          --amber-dim:#fbeee0;
+          --red:#b3402f;
+          --red-dim:#fbe8e4;
+          --slate:#6b7a85;
+          --slate-dim:#eceff1;
+          --green:#3f7a4f;
+          --green-dim:#e7f2e9;
+          --white:#ffffff;
+          --radius:6px;
+          --mono: 'IBM Plex Mono', monospace;
+          --sans: 'IBM Plex Sans', sans-serif;
+        }
+        *{box-sizing:border-box;}
+        html,body{margin:0;padding:0;height:100%;}
+        body{
+          font-family:var(--sans);
+          background:var(--floor-50);
+          color:var(--ink-900);
+          display:flex;
+          min-height:100vh;
+        }
+        ::selection{background:var(--blue);color:#fff;}
+
+        /* ---------- Sidebar ---------- */
+        .sidebar{
+          width:220px;
+          flex-shrink:0;
+          background:var(--steel-900);
+          color:#cfd8de;
+          display:flex;
+          flex-direction:column;
+          position:sticky;
+          top:0;
+          height:100vh;
+        }
+        .brand{
+          padding:20px 18px 16px 18px;
+          border-bottom:1px solid var(--steel-700);
+        }
+        .brand .tag{
+          display:inline-block;
+          font-family:var(--mono);
+          font-size:10px;
+          letter-spacing:.14em;
+          color:var(--amber);
+          background:rgba(200,120,31,.12);
+          border:1px solid rgba(200,120,31,.35);
+          padding:2px 6px;
+          border-radius:3px;
+          margin-bottom:8px;
+        }
+        .brand h1{
+          font-size:18px;
+          margin:0;
+          font-weight:700;
+          letter-spacing:-.01em;
+          color:#fff;
+        }
+        .brand p{
+          margin:4px 0 0 0;
+          font-size:11.5px;
+          color:#8ea0ab;
+        }
+        nav{flex:1;padding:14px 10px;}
+        .navitem{
+          display:flex;
+          align-items:center;
+          gap:10px;
+          width:100%;
+          text-align:left;
+          background:none;
+          border:none;
+          color:#aebac2;
+          font-family:var(--sans);
+          font-size:13.5px;
+          font-weight:500;
+          padding:9px 10px;
+          border-radius:5px;
+          cursor:pointer;
+          margin-bottom:2px;
+        }
+        .navitem .num{
+          font-family:var(--mono);
+          font-size:10.5px;
+          color:#5f6f79;
+          width:16px;
+        }
+        .navitem:hover{background:var(--steel-800);color:#fff;}
+        .navitem.active{background:var(--blue);color:#fff;}
+        .navitem.active .num{color:rgba(255,255,255,.7);}
+        .navitem[disabled]{opacity:.35;cursor:not-allowed;}
+        .navitem[disabled]:hover{background:none;color:#aebac2;}
+
+        .sidebar-foot{
+          padding:14px 18px 18px 18px;
+          border-top:1px solid var(--steel-700);
+          font-size:11.5px;
+          color:#7c8b96;
+        }
+        .role-chip{
+          display:inline-block;
+          font-family:var(--mono);
+          font-size:10px;
+          padding:2px 7px;
+          border-radius:3px;
+          background:var(--steel-700);
+          color:#dfe6ea;
+          margin-top:6px;
+        }
+
+        /* ---------- Main ---------- */
+        .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+        .topbar{
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:16px;
+          padding:14px 28px;
+          background:var(--white);
+          border-bottom:1px solid var(--floor-200);
+          position:sticky;
+          top:0;
+          z-index:5;
+        }
+        .topbar h2{font-size:16px;margin:0;font-weight:600;}
+        .conn{display:flex;align-items:center;gap:10px;}
+        .conn input{
+          font-family:var(--mono);
+          font-size:12px;
+          padding:6px 9px;
+          border:1px solid var(--floor-200);
+          border-radius:5px;
+          width:220px;
+          background:var(--floor-50);
+          color:var(--ink-900);
+        }
+        .dot{width:8px;height:8px;border-radius:50%;background:var(--slate);flex-shrink:0;}
+        .dot.ok{background:var(--green);}
+        .dot.bad{background:var(--red);}
+        .content{padding:26px 28px 60px 28px;max-width:1180px;}
+
+        /* ---------- Cards / panels ---------- */
+        .panel{
+          background:var(--white);
+          border:1px solid var(--floor-200);
+          border-radius:var(--radius);
+          padding:18px 20px;
+          margin-bottom:18px;
+        }
+        .panel h3{
+          margin:0 0 14px 0;
+          font-size:13px;
+          text-transform:uppercase;
+          letter-spacing:.06em;
+          color:var(--ink-500);
+          font-weight:600;
+        }
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;}
+        .stat{
+          border:1px solid var(--floor-200);
+          border-radius:var(--radius);
+          padding:14px 16px;
+          background:var(--floor-50);
+        }
+        .stat .n{font-family:var(--mono);font-size:26px;font-weight:600;line-height:1;}
+        .stat .l{font-size:12px;color:var(--ink-500);margin-top:6px;}
+
+        /* ---------- Forms ---------- */
+        form.inline{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
+        .field{display:flex;flex-direction:column;gap:4px;}
+        .field label{font-size:11px;color:var(--ink-500);font-weight:600;text-transform:uppercase;letter-spacing:.03em;}
+        .field input,.field select,.field textarea{
+          font-family:var(--sans);
+          font-size:13px;
+          padding:7px 9px;
+          border:1px solid var(--floor-200);
+          border-radius:5px;
+          background:var(--white);
+          min-width:150px;
+        }
+        .field textarea{min-width:280px;min-height:70px;font-family:var(--mono);font-size:12px;}
+        button{
+          font-family:var(--sans);
+          font-size:13px;
+          font-weight:600;
+          padding:8px 14px;
+          border-radius:5px;
+          border:1px solid transparent;
+          cursor:pointer;
+        }
+        button.primary{background:var(--blue);color:#fff;}
+        button.primary:hover{background:#254e73;}
+        button.ghost{background:var(--white);color:var(--ink-900);border-color:var(--floor-200);}
+        button.ghost:hover{background:var(--floor-50);}
+        button.danger{background:var(--red-dim);color:var(--red);}
+        button.danger:hover{background:#f6d3cc;}
+        button.small{padding:4px 9px;font-size:11.5px;}
+        button:disabled{opacity:.45;cursor:not-allowed;}
+
+        /* ---------- Table ---------- */
+        table{width:100%;border-collapse:collapse;font-size:13px;}
+        th{
+          text-align:left;
+          font-size:10.5px;
+          text-transform:uppercase;
+          letter-spacing:.04em;
+          color:var(--ink-500);
+          padding:8px 10px;
+          border-bottom:1px solid var(--floor-200);
+          white-space:nowrap;
+        }
+        td{padding:9px 10px;border-bottom:1px solid var(--floor-100);vertical-align:top;}
+        tr:last-child td{border-bottom:none;}
+        td.mono, .mono{font-family:var(--mono);}
+        .actions-cell{display:flex;gap:6px;flex-wrap:wrap;}
+
+        .badge{
+          display:inline-block;
+          font-family:var(--mono);
+          font-size:11px;
+          padding:2px 8px;
+          border-radius:3px;
+          font-weight:600;
+        }
+        .st-Assigned{background:var(--blue-dim);color:var(--blue);}
+        .st-InProgress{background:var(--amber-dim);color:var(--amber);}
+        .st-Pending{background:var(--red-dim);color:var(--red);}
+        .st-Close{background:var(--slate-dim);color:var(--slate);}
+        .st-Resolved{background:var(--green-dim);color:var(--green);}
+        .active-true{background:var(--green-dim);color:var(--green);}
+        .active-false{background:var(--slate-dim);color:var(--slate);}
+
+        .bintag{
+          display:inline-flex;
+          align-items:center;
+          gap:6px;
+          font-family:var(--mono);
+          font-size:12px;
+          font-weight:600;
+          padding:3px 9px 3px 7px;
+          background:var(--steel-900);
+          color:#f2f4f6;
+          border-radius:3px 8px 8px 3px;
+          position:relative;
+        }
+        .bintag:before{
+          content:"";
+          width:6px;height:6px;border-radius:50%;
+          background:var(--amber);
+          flex-shrink:0;
+        }
+
+        .msg{
+          font-size:12.5px;
+          padding:9px 12px;
+          border-radius:5px;
+          margin-bottom:12px;
+          font-family:var(--mono);
+          white-space:pre-wrap;
+        }
+        .msg.err{background:var(--red-dim);color:var(--red);}
+        .msg.ok{background:var(--green-dim);color:var(--green);}
+        .empty{color:var(--ink-500);font-size:12.5px;padding:14px 0;}
+        .hint{font-size:11.5px;color:var(--ink-500);margin-top:2px;}
+        .row-flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+        .pager{display:flex;gap:8px;align-items:center;margin-top:12px;}
+        .pager span{font-family:var(--mono);font-size:12px;color:var(--ink-500);}
+
+        .lockscreen{
+          max-width:380px;
+          margin:70px auto;
+          background:var(--white);
+          border:1px solid var(--floor-200);
+          border-radius:8px;
+          padding:28px;
+        }
+        .lockscreen h2{margin:0 0 4px 0;}
+        .lockscreen p{color:var(--ink-500);font-size:13px;margin:0 0 20px 0;}
+        .tabswitch{display:flex;gap:4px;margin-bottom:18px;background:var(--floor-50);border-radius:6px;padding:3px;}
+        .tabswitch button{flex:1;background:none;border:none;padding:7px;border-radius:4px;color:var(--ink-500);}
+        .tabswitch button.active{background:var(--white);color:var(--ink-900);box-shadow:0 1px 2px rgba(0,0,0,.08);}
+        .lockscreen form{display:flex;flex-direction:column;gap:12px;}
+        .lockscreen .field input,.lockscreen .field select{width:100%;min-width:0;}
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="brand">
+        <span class="tag">WAREHOUSE OPS</span>
+        <h1>RimFloor Console</h1>
+        <p>Bins &middot; work orders &middot; crew</p>
+    </div>
+    <nav id="nav"></nav>
+    <div class="sidebar-foot" id="sidebarFoot">Not signed in</div>
+</div>
+
+<div class="main">
+    <div class="topbar">
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="conn">
+            <span class="dot" id="connDot"></span>
+            <input id="baseUrlInput" value="http://localhost:8080" spellcheck="false">
+            <button class="ghost small" id="pingBtn">Test</button>
+            <button class="ghost small" id="logoutBtn" style="display:none;">Sign out</button>
+        </div>
+    </div>
+    <div class="content" id="content"></div>
+</div>
+
+<script>
+    /* ================= State ================= */
+    const state = {
+      baseUrl: 'http://localhost:8080',
+      token: null,
+      userId: null,
+      role: null,
+      empId: null,
+      tab: 'dashboard',
+      bins: [] // cached for dropdowns
+    };
+
+    const BIN_ENUM = ['East1','East2','East3','West1','West2','West3','South1','South2','South3','North1','North2','North3'];
+    const ROLE_ENUM = ['Admin','Engineer','User'];
+    const STATUS_ENUM = ['Assigned','InProgress','Pending','Close','Resolved'];
+
+    const NAV = [
+      {id:'dashboard', label:'Dashboard', roles:null},
+      {id:'employees', label:'Employees', roles:null},
+      {id:'bins', label:'Bins', roles:null},
+      {id:'tickets', label:'Work Orders', roles:null},
+      {id:'summary', label:'Daily Summary', roles:null},
+      {id:'account', label:'Account', roles:null},
+    ];
+
+    /* ================= API helper ================= */
+    async function api(path, {method='GET', body, auth=true} = {}) {
+      const headers = {'Content-Type':'application/json'};
+      if (auth && state.token) headers['Authorization'] = 'Bearer ' + state.token;
+      let res;
+      try {
+        res = await fetch(state.baseUrl + path, {
+          method, headers, body: body !== undefined ? JSON.stringify(body) : undefined
+        });
+      } catch (e) {
+        throw new Error('Could not reach ' + state.baseUrl + ' — is the backend running, and is CORS enabled? (' + e.message + ')');
+      }
+      const text = await res.text();
+      let data = text;
+      try { data = text ? JSON.parse(text) : null; } catch(e) { /* plain text or empty */ }
+      if (!res.ok) {
+        const msg = typeof data === 'string' ? data : (data && (data.message || JSON.stringify(data))) || (res.status + ' ' + res.statusText);
+        const err = new Error(msg);
+        err.status = res.status;
+        throw err;
+      }
+      return data;
+    }
+
+    function decodeJwt(token) {
+      try {
+        const payload = token.split('.')[1];
+        const json = decodeURIComponent(atob(payload.replace(/-/g,'+').replace(/_/g,'/')).split('').map(c =>
+          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+        return JSON.parse(json);
+      } catch(e) { return null; }
+    }
+
+    /* ================= Shell rendering ================= */
+    function renderShell() {
+      const nav = document.getElementById('nav');
+      nav.innerHTML = '';
+      NAV.forEach((item, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'navitem' + (state.tab === item.id ? ' active' : '');
+        btn.innerHTML = `<span class="num">${String(i+1).padStart(2,'0')}</span>${item.label}`;
+        if (!state.token) btn.disabled = true;
+        btn.onclick = () => { state.tab = item.id; renderShell(); renderTab(); };
+        nav.appendChild(btn);
+      });
+
+      const foot = document.getElementById('sidebarFoot');
+      if (state.token) {
+        foot.innerHTML = `Signed in as<br><strong style="color:#fff;font-family:var(--mono);font-size:12px;">${state.userId}</strong><br><span class="role-chip">${state.role}</span>`;
+      } else {
+        foot.textContent = 'Not signed in';
+      }
+      document.getElementById('logoutBtn').style.display = state.token ? 'inline-block' : 'none';
+      document.getElementById('pageTitle').textContent = state.token
+        ? (NAV.find(n=>n.id===state.tab)?.label || '')
+        : 'Sign in';
+    }
+
+    function can(...roles) {
+      return state.role && roles.includes(state.role);
+    }
+
+    function esc(s) {
+      if (s === null || s === undefined) return '';
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function msg(container, text, kind='err') {
+      const el = document.createElement('div');
+      el.className = 'msg ' + kind;
+      el.textContent = text;
+      container.prepend(el);
+      setTimeout(()=>el.remove(), 6000);
+    }
+
+    /* ================= Ping / connection test ================= */
+    async function testConnection() {
+      const dot = document.getElementById('connDot');
+      dot.className = 'dot';
+      try {
+        await fetch(state.baseUrl + '/auth/login', {method:'OPTIONS'});
+        dot.className = 'dot ok';
+      } catch(e) {
+        dot.className = 'dot bad';
+      }
+    }
+
+    /* ================= Login / Register ================= */
+    function renderLogin() {
+      const c = document.getElementById('content');
+      c.innerHTML = `
+        <div class="lockscreen">
+          <div class="tabswitch">
+            <button id="tsLogin" class="active">Sign in</button>
+            <button id="tsRegister">Register</button>
+          </div>
+          <div id="loginPane">
+            <h2>Sign in</h2>
+            <p>Use your registered work ID (ECN@org.com) and password.</p>
+            <div id="loginMsg"></div>
+            <form id="loginForm">
+              <div class="field"><label>User ID</label><input name="userId" placeholder="IBL6001@org.com" required></div>
+              <div class="field"><label>Password</label><input name="password" type="password" required></div>
+              <button class="primary" type="submit">Sign in</button>
+            </form>
+          </div>
+          <div id="registerPane" style="display:none;">
+            <h2>Register</h2>
+            <p>Creates a login for an employee that already exists in the system.</p>
+            <div id="registerMsg"></div>
+            <form id="registerForm">
+              <div class="field"><label>Employee ID (empId)</label><input name="empId" type="number" required></div>
+              <div class="field"><label>Password</label><input name="password" type="password" required></div>
+              <div class="field"><label>Role</label>
+                <select name="role">${ROLE_ENUM.map(r=>`<option value="${r}">${r}</option>`).join('')}</select>
+              </div>
+              <button class="primary" type="submit">Create login</button>
+            </form>
+          </div>
+        </div>
+      `;
+      document.getElementById('tsLogin').onclick = () => {
+        document.getElementById('tsLogin').classList.add('active');
+        document.getElementById('tsRegister').classList.remove('active');
+        document.getElementById('loginPane').style.display = '';
+        document.getElementById('registerPane').style.display = 'none';
+      };
+      document.getElementById('tsRegister').onclick = () => {
+        document.getElementById('tsRegister').classList.add('active');
+        document.getElementById('tsLogin').classList.remove('active');
+        document.getElementById('registerPane').style.display = '';
+        document.getElementById('loginPane').style.display = 'none';
+      };
+
+      document.getElementById('loginForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        try {
+          const token = await api('/auth/login', {method:'POST', auth:false, body:{
+            userId: f.get('userId'), password: f.get('password')
+          }});
+          const cleanToken = typeof token === 'string' ? token : String(token);
+          const claims = decodeJwt(cleanToken);
+          state.token = cleanToken;
+          state.userId = (claims && claims.sub) || f.get('userId');
+          state.role = (claims && claims.role) || null;
+          state.tab = 'dashboard';
+          renderShell();
+          renderTab();
+        } catch(err) {
+          msg(document.getElementById('loginMsg'), err.message);
+        }
+      };
+
+      document.getElementById('registerForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        try {
+          await api('/auth/registUser', {method:'POST', auth:false, body:{
+            password: f.get('password'),
+            role: f.get('role'),
+            employee: { empId: Number(f.get('empId')) }
+          }});
+          msg(document.getElementById('registerMsg'), 'Login created. The user ID is the employee\'s ECN number + "@org.com". Switch to Sign in.', 'ok');
+        } catch(err) {
+          msg(document.getElementById('registerMsg'), err.message);
+        }
+      };
+    }
+
+    document.getElementById('logoutBtn').onclick = () => {
+      state.token = null; state.userId = null; state.role = null;
+      state.tab = 'dashboard';
+      renderShell();
+      renderLogin();
+    };
+
+    /* ================= Dashboard ================= */
+    async function renderDashboard() {
+      const c = document.getElementById('content');
+      c.innerHTML = `<div class="panel"><h3>Floor summary</h3><div id="dashGrid" class="grid"><div class="empty">Loading…</div></div></div>`;
+      try {
+        const d = await api('/dashboard');
+        const grid = document.getElementById('dashGrid');
+        const stats = [
+          ['Total employees', d.totalEmployee],
+          ['Total work orders', d.totalTickets],
+          ['Assigned (open)', d.openTickets],
+          ['In progress', d.inProgressTickets],
+          ['Pending', d.pendingTickets],
+          ['Closed', d.closedTickets],
+          ['Today\'s tally', d.todaySummary],
+        ];
+        grid.innerHTML = stats.map(([l,n]) => `<div class="stat"><div class="n">${n ?? 0}</div><div class="l">${l}</div></div>`).join('');
+      } catch(err) {
+        msg(document.getElementById('content'), 'Could not load dashboard: ' + err.message);
+      }
+    }
+
+    /* ================= Bins cache (for dropdowns) ================= */
+    async function loadBinsCache() {
+      try {
+        state.bins = await api('/bin/getAllBins');
+      } catch(e) { state.bins = []; }
+    }
+    function binOptions(selected) {
+      return state.bins.map(b => `<option value="${esc(b.binId)}" ${b.binId===selected?'selected':''}>${esc(b.binId)} — ${esc(b.binName)}</option>`).join('');
+    }
+
+    /* ================= Employees ================= */
+    async function renderEmployees() {
+      const c = document.getElementById('content');
+      const canWrite = can('Admin');
+      c.innerHTML = `
+        ${canWrite ? `
+        <div class="panel">
+          <h3>Add employee</h3>
+          <form class="inline" id="empCreateForm">
+            <div class="field"><label>Name</label><input name="empName" required></div>
+            <div class="field"><label>Bin</label><select name="binId" required><option value="">Select bin…</option>${binOptions()}</select></div>
+            <button class="primary" type="submit">Create</button>
+          </form>
+        </div>` : ''}
+
+        <div class="panel">
+          <h3>Find an employee</h3>
+          <form class="inline" id="empSearchForm">
+            <div class="field"><label>Name</label><input name="empName"></div>
+            <div class="field"><label>ECN number</label><input name="ecnNum"></div>
+            <div class="field"><label>Bin name</label><select name="binName"><option value="">Any</option>${BIN_ENUM.map(b=>`<option value="${b}">${b}</option>`).join('')}</select></div>
+            <button class="ghost" type="submit">Search</button>
+            <button class="ghost" type="button" id="empClearSearch">Clear</button>
+          </form>
+          <div id="empSearchResult"></div>
+        </div>
+
+        <div class="panel">
+          <div class="row-flex" style="justify-content:space-between;margin-bottom:0;">
+            <h3 style="margin-bottom:0;">All employees</h3>
+            <div class="row-flex" style="margin-bottom:0;">
+              <select id="empSortBy" class="field" style="min-width:auto;">
+                <option value="empId">Sort: Employee ID</option>
+                <option value="empName">Sort: Name</option>
+                <option value="ecnNum">Sort: ECN</option>
+              </select>
+              <select id="empSortDir">
+                <option value="ASC">Ascending</option>
+                <option value="DESC">Descending</option>
+              </select>
+            </div>
+          </div>
+          <div id="empTableWrap"><div class="empty">Loading…</div></div>
+          <div class="pager">
+            <button class="ghost small" id="empPrev">‹ Prev</button>
+            <span id="empPageLabel">Page 1</span>
+            <button class="ghost small" id="empNext">Next ›</button>
+          </div>
+        </div>
+      `;
+
+      if (canWrite) {
+        document.getElementById('empCreateForm').onsubmit = async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          try {
+            await api('/employee/create', {method:'POST', body:{
+              empName: f.get('empName'), bin: { binId: f.get('binId') }
+            }});
+            msg(c, 'Employee created.', 'ok');
+            e.target.reset();
+            empState.page = 0;
+            loadEmployeesPage();
+          } catch(err) { msg(c, err.message); }
+        };
+      }
+
+      document.getElementById('empSearchForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const params = new URLSearchParams();
+        ['empName','ecnNum','binName'].forEach(k => { if (f.get(k)) params.set(k, f.get(k)); });
+        const resultWrap = document.getElementById('empSearchResult');
+        if ([...params.keys()].length === 0) { resultWrap.innerHTML = ''; return; }
+        try {
+          const result = await api('/employee/search?' + params.toString());
+          resultWrap.innerHTML = renderEmployeeTable([result]);
+          bindEmployeeRowActions(resultWrap);
+        } catch(err) {
+          resultWrap.innerHTML = `<div class="msg err">${esc(err.message)}</div>`;
+        }
+      };
+      document.getElementById('empClearSearch').onclick = () => {
+        document.getElementById('empSearchForm').reset();
+        document.getElementById('empSearchResult').innerHTML = '';
+      };
+
+      document.getElementById('empSortBy').onchange = () => { empState.page = 0; loadEmployeesPage(); };
+      document.getElementById('empSortDir').onchange = () => { empState.page = 0; loadEmployeesPage(); };
+      document.getElementById('empPrev').onclick = () => { if (empState.page>0){empState.page--; loadEmployeesPage();} };
+      document.getElementById('empNext').onclick = () => { empState.page++; loadEmployeesPage(); };
+
+      empState.page = 0;
+      loadEmployeesPage();
+    }
+
+    const empState = { page: 0, size: 10 };
+
+    function renderEmployeeTable(rows) {
+      if (!rows || rows.length === 0) return `<div class="empty">No employees found.</div>`;
+      const canWrite = can('Admin');
+      return `
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>ECN</th><th>Bin</th>${canWrite?'<th></th>':''}</tr></thead>
+          <tbody>
+            ${rows.map(e => `
+              <tr data-id="${e.empId}">
+                <td class="mono">${e.empId ?? ''}</td>
+                <td>${esc(e.empName)}</td>
+                <td class="mono">${esc(e.ecnNum)}</td>
+                <td>${e.binName ? `<span class="bintag">${esc(e.binName)}</span>` : '<span class="hint">unassigned</span>'}</td>
+                ${canWrite ? `<td class="actions-cell">
+                  <button class="ghost small" data-act="edit" data-id="${e.empId}">Edit</button>
+                  <button class="danger small" data-act="del" data-id="${e.empId}">Delete</button>
+                </td>` : ''}
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    function bindEmployeeRowActions(scope) {
+      scope.querySelectorAll('[data-act="del"]').forEach(btn => {
+        btn.onclick = async () => {
+          if (!confirm('Delete employee #' + btn.dataset.id + '?')) return;
+          try {
+            await api('/employee/deleteById/' + btn.dataset.id, {method:'DELETE'});
+            loadEmployeesPage();
+          } catch(err) { msg(document.getElementById('content'), err.message); }
+        };
+      });
+      scope.querySelectorAll('[data-act="edit"]').forEach(btn => {
+        btn.onclick = () => openEmployeeEdit(btn.dataset.id);
+      });
+    }
+
+    function openEmployeeEdit(empId) {
+      const wrap = document.getElementById('empTableWrap');
+      const row = wrap.querySelector(`tr[data-id="${empId}"]`);
+      if (!row) return;
+      row.innerHTML = `
+        <td class="mono">${empId}</td>
+        <td colspan="3">
+          <form class="inline" id="empEditForm-${empId}">
+            <div class="field"><label>Name</label><input name="empName" placeholder="leave blank to keep"></div>
+            <div class="field"><label>Move to bin</label><select name="binId"><option value="">leave unchanged</option>${binOptions()}</select></div>
+            <button class="primary small" type="submit">Save</button>
+            <button class="ghost small" type="button" id="empEditCancel-${empId}">Cancel</button>
+          </form>
+        </td>
+      `;
+      document.getElementById(`empEditCancel-${empId}`).onclick = () => loadEmployeesPage();
+      document.getElementById(`empEditForm-${empId}`).onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const body = {};
+        if (f.get('empName')) body.empName = f.get('empName');
+        if (f.get('binId')) body.bin = { binId: f.get('binId') };
+        try {
+          await api('/employee/updateById/' + empId, {method:'PUT', body});
+          loadEmployeesPage();
+        } catch(err) { msg(document.getElementById('content'), err.message); }
+      };
+    }
+
+    async function loadEmployeesPage() {
+      const wrap = document.getElementById('empTableWrap');
+      if (!wrap) return;
+      const sortBy = document.getElementById('empSortBy').value;
+      const direction = document.getElementById('empSortDir').value;
+      try {
+        const pageData = await api(`/employee/sorting?sortBy=${sortBy}&direction=${direction}&page=${empState.page}&size=${empState.size}`);
+        const rows = pageData.content || [];
+        wrap.innerHTML = renderEmployeeTable(rows);
+        bindEmployeeRowActions(wrap);
+        document.getElementById('empPageLabel').textContent = `Page ${empState.page + 1} of ${pageData.totalPages || 1}`;
+      } catch(err) {
+        wrap.innerHTML = `<div class="msg err">${esc(err.message)}</div>`;
+      }
+    }
+
+    /* ================= Bins ================= */
+    async function renderBins() {
+      const c = document.getElementById('content');
+      const canWrite = can('Admin');
+      c.innerHTML = `
+        ${canWrite ? `
+        <div class="panel">
+          <h3>Add bin</h3>
+          <form class="inline" id="binCreateForm">
+            <div class="field"><label>Bin ID</label><input name="binId" placeholder="e.g. E1-04" required></div>
+            <div class="field"><label>Bin name (rim)</label><select name="binName">${BIN_ENUM.map(b=>`<option value="${b}">${b}</option>`).join('')}</select></div>
+            <button class="primary" type="submit">Create</button>
+          </form>
+        </div>` : ''}
+        <div class="panel">
+          <h3>Find a bin</h3>
+          <form class="inline" id="binSearchForm">
+            <div class="field"><label>Bin ID</label><input name="binId"></div>
+            <div class="field"><label>Bin name</label><select name="binName"><option value="">Any</option>${BIN_ENUM.map(b=>`<option value="${b}">${b}</option>`).join('')}</select></div>
+            <div class="field"><label>Assigned employee</label><input name="empName"></div>
+            <button class="ghost" type="submit">Search</button>
+            <button class="ghost" type="button" id="binClearSearch">Clear</button>
+          </form>
+          <div id="binSearchResult"></div>
+        </div>
+        <div class="panel">
+          <h3>All bins</h3>
+          <div id="binTableWrap"><div class="empty">Loading…</div></div>
+        </div>
+      `;
+
+      if (canWrite) {
+        document.getElementById('binCreateForm').onsubmit = async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          try {
+            await api('/bin/create', {method:'POST', body:{
+              binId: f.get('binId'), binName: f.get('binName'), isActive: false
+            }});
+            msg(c, 'Bin created.', 'ok');
+            e.target.reset();
+            await loadBinsCache();
+            loadBinsTable();
+          } catch(err) { msg(c, err.message); }
+        };
+      }
+
+      document.getElementById('binSearchForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const params = new URLSearchParams();
+        ['binId','binName','empName'].forEach(k => { if (f.get(k)) params.set(k, f.get(k)); });
+        const resultWrap = document.getElementById('binSearchResult');
+        if ([...params.keys()].length === 0) { resultWrap.innerHTML = ''; return; }
+        try {
+          const result = await api('/bin/search?' + params.toString());
+          resultWrap.innerHTML = renderBinTable([result]);
+          bindBinRowActions(resultWrap);
+        } catch(err) {
+          resultWrap.innerHTML = `<div class="msg err">${esc(err.message)}</div>`;
+        }
+      };
+      document.getElementById('binClearSearch').onclick = () => {
+        document.getElementById('binSearchForm').reset();
+        document.getElementById('binSearchResult').innerHTML = '';
+      };
+
+      loadBinsTable();
+    }
+
+    function renderBinTable(rows) {
+      if (!rows || rows.length === 0) return `<div class="empty">No bins found.</div>`;
+      const canWrite = can('Admin');
+      return `
+        <table>
+          <thead><tr><th>Bin ID</th><th>Rim</th><th>Assigned to</th><th>Active</th>${canWrite?'<th></th>':''}</tr></thead>
+          <tbody>
+            ${rows.map(b => `
+              <tr data-id="${esc(b.binId)}">
+                <td><span class="bintag">${esc(b.binId)}</span></td>
+                <td>${esc(b.binName)}</td>
+                <td>${b.empName ? esc(b.empName) : '<span class="hint">—</span>'}</td>
+                <td><span class="badge active-${!!b.isActive}">${b.isActive ? 'Active' : 'Idle'}</span></td>
+                ${canWrite ? `<td class="actions-cell">
+                  <button class="ghost small" data-act="editbin" data-id="${esc(b.binId)}">Edit</button>
+                  <button class="danger small" data-act="delbin" data-id="${esc(b.binId)}">Delete</button>
+                </td>` : ''}
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    function bindBinRowActions(scope) {
+      scope.querySelectorAll('[data-act="delbin"]').forEach(btn => {
+        btn.onclick = async () => {
+          if (!confirm('Delete bin ' + btn.dataset.id + '?')) return;
+          try {
+            await api('/bin/delete/' + encodeURIComponent(btn.dataset.id), {method:'DELETE'});
+            await loadBinsCache();
+            loadBinsTable();
+          } catch(err) { msg(document.getElementById('content'), err.message); }
+        };
+      });
+      scope.querySelectorAll('[data-act="editbin"]').forEach(btn => {
+        btn.onclick = () => openBinEdit(btn.dataset.id);
+      });
+    }
+
+    function openBinEdit(binId) {
+      const wrap = document.getElementById('binTableWrap');
+      const row = wrap.querySelector(`tr[data-id="${CSS.escape(binId)}"]`);
+      if (!row) return;
+      row.innerHTML = `
+        <td><span class="bintag">${esc(binId)}</span></td>
+        <td colspan="3">
+          <form class="inline" id="binEditForm">
+            <div class="field"><label>Rim</label><select name="binName">${BIN_ENUM.map(b=>`<option value="${b}">${b}</option>`).join('')}</select></div>
+            <button class="primary small" type="submit">Save</button>
+            <button class="ghost small" type="button" id="binEditCancel">Cancel</button>
+          </form>
+        </td>
+      `;
+      document.getElementById('binEditCancel').onclick = () => loadBinsTable();
+      document.getElementById('binEditForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        try {
+          await api('/bin/updateBin/' + encodeURIComponent(binId), {method:'PUT', body:{ binName: f.get('binName') }});
+          await loadBinsCache();
+          loadBinsTable();
+        } catch(err) { msg(document.getElementById('content'), err.message); }
+      };
+    }
+
+    async function loadBinsTable() {
+      const wrap = document.getElementById('binTableWrap');
+      if (!wrap) return;
+      try {
+        const rows = await api('/bin/getAllBins');
+        wrap.innerHTML = renderBinTable(rows);
+        bindBinRowActions(wrap);
+      } catch(err) {
+        wrap.innerHTML = `<div class="msg err">${esc(err.message)}</div>`;
+      }
+    }
+
+    /* ================= Tickets (work orders) ================= */
+    const ticketState = { page: 0, size: 10 };
+
+    async function renderTickets() {
+      const c = document.getElementById('content');
+      c.innerHTML = `
+        <div class="panel">
+          <h3>Log a work order</h3>
+          <form class="inline" id="ticketCreateForm">
+            <div class="field"><label>Bin</label><select name="binId" required><option value="">Select bin…</option>${binOptions()}</select></div>
+            <div class="field"><label>Status</label><select name="status">${STATUS_ENUM.map(s=>`<option value="${s}">${s}</option>`).join('')}</select></div>
+            <div class="field"><label>Notes (optional)</label><input name="notes"></div>
+            <button class="primary" type="submit">Create</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h3>Filter work orders</h3>
+          <form class="inline" id="ticketFilterForm">
+            <div class="field"><label>Status</label><select name="status"><option value="">Any</option>${STATUS_ENUM.map(s=>`<option value="${s}">${s}</option>`).join('')}</select></div>
+            <div class="field"><label>Bin name</label><select name="binName"><option value="">Any</option>${BIN_ENUM.map(b=>`<option value="${b}">${b}</option>`).join('')}</select></div>
+            <div class="field"><label>Created date</label><input type="date" name="createdDate"></div>
+            <div class="field"><label>Modified date</label><input type="date" name="modifiedDate"></div>
+            <button class="ghost" type="submit">Filter</button>
+            <button class="ghost" type="button" id="ticketClearFilter">Clear</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="row-flex" style="justify-content:space-between;margin-bottom:0;">
+            <h3 style="margin-bottom:0;">Work orders</h3>
+          </div>
+          <div id="ticketTableWrap"><div class="empty">Loading…</div></div>
+          <div class="pager">
+            <button class="ghost small" id="ticketPrev">‹ Prev</button>
+            <span id="ticketPageLabel">Page 1</span>
+            <button class="ghost small" id="ticketNext">Next ›</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('ticketCreateForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        try {
+          await api('/tickets/create', {method:'POST', body:{
+            bin: { binId: f.get('binId') },
+            status: f.get('status'),
+            notes: f.get('notes') || null
+          }});
+          msg(c, 'Work order created.', 'ok');
+          e.target.reset();
+          ticketState.page = 0; ticketState.filter = null;
+          loadTicketsPage();
+        } catch(err) { msg(c, err.message); }
+      };
+
+      document.getElementById('ticketFilterForm').onsubmit = (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const params = new URLSearchParams();
+        ['status','binName','createdDate','modifiedDate'].forEach(k => { if (f.get(k)) params.set(k, f.get(k)); });
+        ticketState.filter = params;
+        ticketState.page = 0;
+        loadTicketsPage();
+      };
+      document.getElementById('ticketClearFilter').onclick = () => {
+        document.getElementById('ticketFilterForm').reset();
+        ticketState.filter = null;
+        ticketState.page = 0;
+        loadTicketsPage();
+      };
+      document.getElementById('ticketPrev').onclick = () => { if (ticketState.page>0){ticketState.page--; loadTicketsPage();} };
+      document.getElementById('ticketNext').onclick = () => { ticketState.page++; loadTicketsPage(); };
+
+      ticketState.page = 0; ticketState.filter = null;
+      loadTicketsPage();
+    }
+
+    function renderTicketTable(rows) {
+      if (!rows || rows.length === 0) return `<div class="empty">No work orders found.</div>`;
+      const canManage = can('Admin','Engineer');
+      const canDelete = can('Admin');
+      return `
+        <table>
+          <thead><tr><th>Code</th><th>Bin</th><th>Status</th><th>Created</th><th>Updated</th><th>Notes / reason</th>${(canManage||canDelete)?'<th></th>':''}</tr></thead>
+          <tbody>
+            ${rows.map(t => `
+              <tr data-id="${t.requestId ?? ''}" data-code="${esc(t.requestCode)}">
+                <td class="mono">${esc(t.requestCode)}</td>
+                <td>${t.binName ? `<span class="bintag">${esc(t.binName)}</span>` : ''}</td>
+                <td><span class="badge st-${t.status}">${esc(t.status)}</span></td>
+                <td class="mono">${esc(t.CreateDate || t.createdDate || '')}</td>
+                <td class="mono">${esc(t.UpdatedDate || t.modifiedDate || '')}</td>
+                <td style="max-width:220px;">${esc(t.statusReason || t.notes || '')}</td>
+                ${(canManage||canDelete) ? `<td class="actions-cell">
+                  ${canManage ? `<button class="ghost small" data-act="status" data-id="${t.requestId}">Status</button>
+                  <button class="ghost small" data-act="movebin" data-id="${t.requestId}">Move bin</button>` : ''}
+                  ${canDelete ? `<button class="danger small" data-act="delticket" data-id="${t.requestId}">Delete</button>` : ''}
+                </td>` : ''}
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    function bindTicketRowActions(scope) {
+      scope.querySelectorAll('[data-act="delticket"]').forEach(btn => {
+        btn.onclick = async () => {
+          if (!confirm('Delete this work order?')) return;
+          try {
+            await api('/tickets/deleteById?requestId=' + btn.dataset.id, {method:'DELETE'});
+            loadTicketsPage();
+          } catch(err) { msg(document.getElementById('content'), err.message); }
+        };
+      });
+      scope.querySelectorAll('[data-act="status"]').forEach(btn => {
+        btn.onclick = () => openTicketStatusEdit(btn.dataset.id);
+      });
+      scope.querySelectorAll('[data-act="movebin"]').forEach(btn => {
+        btn.onclick = () => openTicketBinEdit(btn.dataset.id);
+      });
+    }
+
+    function openTicketStatusEdit(requestId) {
+      const wrap = document.getElementById('ticketTableWrap');
+      const row = wrap.querySelector(`tr[data-id="${requestId}"]`);
+      if (!row) return;
+      row.innerHTML = `
+        <td colspan="7">
+          <form class="inline" id="ticketStatusForm">
+            <div class="field"><label>New status</label><select name="status">${STATUS_ENUM.map(s=>`<option value="${s}">${s}</option>`).join('')}</select></div>
+            <div class="field"><label>Reason (Pending / Close)</label><input name="statusReason"></div>
+            <div class="field"><label>Resolution notes (Resolved)</label>
+              <textarea name="notes" placeholder="Problem Reported: ...&#10;Problem Analized: ...&#10;Action Taken: ...&#10;Remark: ...&#10;Regards: ..."></textarea>
+            </div>
+            <button class="primary small" type="submit">Save</button>
+            <button class="ghost small" type="button" id="ticketStatusCancel">Cancel</button>
+          </form>
+          <div class="hint">Resolved requires notes in the "Problem Reported / Problem Analized / Action Taken / Remark / Regards" format. Once a ticket is Resolved its status is locked.</div>
+        </td>
+      `;
+      document.getElementById('ticketStatusCancel').onclick = () => loadTicketsPage();
+      document.getElementById('ticketStatusForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        try {
+          await api('/tickets/updateStatusById/' + requestId, {method:'PUT', body:{
+            status: f.get('status'),
+            statusReason: f.get('statusReason') || null,
+            notes: f.get('notes') || null
+          }});
+          loadTicketsPage();
+        } catch(err) { msg(document.getElementById('content'), err.message); }
+      };
+    }
+
+    function openTicketBinEdit(requestId) {
+      const wrap = document.getElementById('ticketTableWrap');
+      const row = wrap.querySelector(`tr[data-id="${requestId}"]`);
+      if (!row) return;
+      row.innerHTML = `
+        <td colspan="7">
+          <form class="inline" id="ticketBinForm">
+            <div class="field"><label>Move to bin</label><select name="binId" required><option value="">Select bin…</option>${binOptions()}</select></div>
+            <button class="primary small" type="submit">Save</button>
+            <button class="ghost small" type="button" id="ticketBinCancel">Cancel</button>
+          </form>
+        </td>
+      `;
+      document.getElementById('ticketBinCancel').onclick = () => loadTicketsPage();
+      document.getElementById('ticketBinForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        try {
+          await api('/tickets/updateBinById/' + requestId, {method:'PUT', body:{ bin: { binId: f.get('binId') } }});
+          loadTicketsPage();
+        } catch(err) { msg(document.getElementById('content'), err.message); }
+      };
+    }
+
+    async function loadTicketsPage() {
+      const wrap = document.getElementById('ticketTableWrap');
+      if (!wrap) return;
+      try {
+        const params = ticketState.filter ? new URLSearchParams(ticketState.filter) : new URLSearchParams();
+        params.set('page', ticketState.page);
+        params.set('size', ticketState.size);
+        params.set('sortBy', 'requestId');
+        params.set('direction', 'DESC');
+        let rows, totalPages = 1;
+        if ([...params.keys()].filter(k => !['page','size','sortBy','direction'].includes(k)).length > 0) {
+          const pageData = await api('/tickets/filter?' + params.toString());
+          rows = pageData.content || [];
+          totalPages = pageData.totalPages || 1;
+        } else {
+          const pageData = await api('/tickets/filter?page='+ticketState.page+'&size='+ticketState.size+'&sortBy=requestId&direction=DESC&status=' + STATUS_ENUM.join('&status='));
+          rows = pageData.content || [];
+          totalPages = pageData.totalPages || 1;
+        }
+        wrap.innerHTML = renderTicketTable(rows);
+        bindTicketRowActions(wrap);
+        document.getElementById('ticketPageLabel').textContent = `Page ${ticketState.page + 1} of ${totalPages}`;
+      } catch(err) {
+        wrap.innerHTML = `<div class="msg err">${esc(err.message)}</div>`;
+      }
+    }
+
+    /* ================= Daily Summary ================= */
+    async function renderSummary() {
+      const c = document.getElementById('content');
+      const canWrite = can('Admin','Engineer');
+      c.innerHTML = `
+        ${canWrite ? `
+        <div class="panel">
+          <h3>Log daily count</h3>
+          <form class="inline" id="summaryCreateForm">
+            <div class="field"><label>Employee ID</label><input name="empId" type="number" required></div>
+            <div class="field"><label>Daily count</label><input name="dailyCount" type="number" required></div>
+            <button class="primary" type="submit">Create</button>
+          </form>
+          <div class="hint" style="margin-top:8px;">To add more to an existing day's tally for an employee, use "Add to today" below instead.</div>
+          <form class="inline" style="margin-top:12px;" id="summaryUpdateForm">
+            <div class="field"><label>Employee ID</label><input name="empId" type="number" required></div>
+            <div class="field"><label>Add to daily count</label><input name="dailyCount" type="number" required></div>
+            <button class="ghost" type="submit">Add to today</button>
+          </form>
+        </div>` : ''}
+
+        <div class="panel">
+          <h3>Find summaries</h3>
+          <form class="inline" id="summarySearchForm">
+            <div class="field"><label>Name</label><input name="empName"></div>
+            <div class="field"><label>ECN number</label><input name="ecnNum"></div>
+            <div class="field"><label>Bin name</label><select name="binName"><option value="">Any</option>${BIN_ENUM.map(b=>`<option value="${b}">${b}</option>`).join('')}</select></div>
+            <button class="ghost" type="submit">Search</button>
+          </form>
+          <div id="summarySearchResult"></div>
+        </div>
+
+        <div class="panel">
+          <h3>By date</h3>
+          <form class="inline" id="summaryDateForm">
+            <div class="field"><label>Date</label><input type="date" name="date" required></div>
+            <button class="ghost" type="submit">Show</button>
+          </form>
+          <div id="summaryDateResult"></div>
+        </div>
+
+        <div class="panel">
+          <div class="row-flex" style="justify-content:space-between;margin-bottom:0;">
+            <h3 style="margin-bottom:0;">All summaries</h3>
+            <select id="summarySortBy">
+              <option value="empId">Sort: Employee ID</option>
+              <option value="dailyCount">Sort: Daily count</option>
+              <option value="totalCount">Sort: Total count</option>
+            </select>
+          </div>
+          <div id="summaryTableWrap"><div class="empty">Loading…</div></div>
+        </div>
+      `;
+
+      if (canWrite) {
+        document.getElementById('summaryCreateForm').onsubmit = async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          try {
+            await api('/dailysummary/create', {method:'POST', body:{
+              employee: { empId: Number(f.get('empId')) },
+              dailyCount: Number(f.get('dailyCount')),
+              totalCount: 0
+            }});
+            msg(c, 'Summary logged.', 'ok');
+            e.target.reset();
+            loadSummaryTable();
+          } catch(err) { msg(c, err.message); }
+        };
+        document.getElementById('summaryUpdateForm').onsubmit = async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          try {
+            await api('/dailysummary/updateById/' + f.get('empId'), {method:'PUT', body:{
+              dailyCount: Number(f.get('dailyCount'))
+            }});
+            msg(c, 'Tally updated.', 'ok');
+            e.target.reset();
+            loadSummaryTable();
+          } catch(err) { msg(c, err.message); }
+        };
+      }
+
+      document.getElementById('summarySearchForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const params = new URLSearchParams();
+        ['empName','ecnNum','binName'].forEach(k => { if (f.get(k)) params.set(k, f.get(k)); });
+        const resultWrap = document.getElementById('summarySearchResult');
+        if ([...params.keys()].length === 0) { resultWrap.innerHTML = ''; return; }
+        try {
+          const result = await api('/dailysummary/search?' + params.toString());
+          resultWrap.innerHTML = renderSummaryTable([result]);
+        } catch(err) {
+          resultWrap.innerHTML = `<div class="msg err">${esc(err.message)}</div>`;
+        }
+      };
+
+      document.getElementById('summaryDateForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const resultWrap = document.getElementById('summaryDateResult');
+        try {
+          const rows = await api('/dailysummary/searchByDate/' + f.get('date'));
+          resultWrap.innerHTML = renderSummaryTable(rows);
+        } catch(err) {
+          resultWrap.innerHTML = `<div class="msg err">${esc(err.message)}</div>`;
+        }
+      };
+
+      document.getElementById('summarySortBy').onchange = loadSummaryTable;
+      loadSummaryTable();
+    }
+
+    function renderSummaryTable(rows) {
+      if (!rows || rows.length === 0) return `<div class="empty">No summaries found.</div>`;
+      const canDelete = can('Admin');
+      return `
+        <table>
+          <thead><tr><th>Employee</th><th>Emp ID</th><th>Date</th><th>Daily</th><th>Total</th>${canDelete?'<th></th>':''}</tr></thead>
+          <tbody>
+            ${rows.map(s => `
+              <tr>
+                <td>${esc(s.Employee || '')}</td>
+                <td class="mono">${s.empId ?? ''}</td>
+                <td class="mono">${esc(s.date || '')}</td>
+                <td class="mono">${s.dailyCount ?? ''}</td>
+                <td class="mono">${s.totalCount ?? ''}</td>
+                ${canDelete ? `<td><button class="danger small" data-act="delsummary" data-id="${s.empId}">Delete</button></td>` : ''}
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    async function loadSummaryTable() {
+      const wrap = document.getElementById('summaryTableWrap');
+      if (!wrap) return;
+      const sortBy = document.getElementById('summarySortBy').value;
+      try {
+        const rows = await api(`/dailysummary/sorting?sortBy=${sortBy}&direction=ASC`);
+        wrap.innerHTML = renderSummaryTable(rows);
+        wrap.querySelectorAll('[data-act="delsummary"]').forEach(btn => {
+          btn.onclick = async () => {
+            if (!confirm('Delete this summary?')) return;
+            try {
+              await api('/dailysummary/deleteById?empId=' + btn.dataset.id, {method:'DELETE'});
+              loadSummaryTable();
+            } catch(err) { msg(document.getElementById('content'), err.message); }
+          };
+        });
+      } catch(err) {
+        wrap.innerHTML = `<div class="msg err">${esc(err.message)}</div>`;
+      }
+    }
+
+    /* ================= Account ================= */
+    function renderAccount() {
+      const c = document.getElementById('content');
+      c.innerHTML = `
+        <div class="panel">
+          <h3>Change your password</h3>
+          <form class="inline" id="pwForm">
+            <div class="field"><label>Employee ID</label><input name="empId" type="number" required value="${state.empId ?? ''}"></div>
+            <div class="field"><label>Current password</label><input name="oldPassword" type="password" required></div>
+            <div class="field"><label>New password</label><input name="newPassword" type="password" required></div>
+            <button class="primary" type="submit">Update password</button>
+          </form>
+        </div>
+        ${can('Admin') ? `
+        <div class="panel">
+          <h3>Change a user's role</h3>
+          <form class="inline" id="roleForm">
+            <div class="field"><label>Employee ID</label><input name="empId" type="number" required></div>
+            <div class="field"><label>New role</label><select name="role">${ROLE_ENUM.map(r=>`<option value="${r}">${r}</option>`).join('')}</select></div>
+            <button class="primary" type="submit">Update role</button>
+          </form>
+        </div>` : ''}
+        <div class="panel">
+          <h3>Session</h3>
+          <p style="font-size:13px;color:var(--ink-500);">Signed in as <span class="mono">${esc(state.userId)}</span> with role <strong>${esc(state.role)}</strong>. Tokens expire after 1 hour — sign in again if requests start failing with 401/403.</p>
+        </div>
+      `;
+      document.getElementById('pwForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        try {
+          await api('/auth/changePassword/' + f.get('empId'), {method:'POST', body:{
+            oldPassword: f.get('oldPassword'), newPassword: f.get('newPassword')
+          }});
+          msg(c, 'Password updated.', 'ok');
+          e.target.reset();
+        } catch(err) { msg(c, err.message); }
+      };
+      const roleForm = document.getElementById('roleForm');
+      if (roleForm) {
+        roleForm.onsubmit = async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          try {
+            await api('/auth/roleChange/' + f.get('empId'), {method:'PUT', body:{ role: f.get('role') }});
+            msg(c, 'Role updated.', 'ok');
+            e.target.reset();
+          } catch(err) { msg(c, err.message); }
+        };
+      }
+    }
+
+    /* ================= Tab router ================= */
+    async function renderTab() {
+      if (!state.token) { renderLogin(); return; }
+      if (state.bins.length === 0) await loadBinsCache();
+      switch(state.tab) {
+        case 'dashboard': return renderDashboard();
+        case 'employees': return renderEmployees();
+        case 'bins': return renderBins();
+        case 'tickets': return renderTickets();
+        case 'summary': return renderSummary();
+        case 'account': return renderAccount();
+        default: return renderDashboard();
+      }
+    }
+
+    /* ================= Init ================= */
+    document.getElementById('baseUrlInput').oninput = (e) => { state.baseUrl = e.target.value.replace(/\/$/,''); };
+    document.getElementById('pingBtn').onclick = testConnection;
+
+    renderShell();
+    renderLogin();
+    testConnection();
+</script>
+</body>
+</html>

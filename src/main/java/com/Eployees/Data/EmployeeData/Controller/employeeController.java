@@ -9,10 +9,15 @@ import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import com.Eployees.Data.EmployeeData.Service.employeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -32,14 +37,14 @@ public class employeeController
         return new ResponseEntity<>(employeeService.saveEmployee(employee), HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasRole('Admin')")
+//    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/updateById/{empId}")
     public ResponseEntity<employeeDto> updateEmployeeById(@PathVariable long empId, @RequestBody employee employee)
     {
         return new ResponseEntity<>(employeeService.updateEmployeeName(empId, employee),HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('Admin', 'Engineer')")
+//    @PreAuthorize("hasAnyRole('Admin', 'Engineer')")
     @GetMapping("/getById/{empId}")
     public ResponseEntity<employeeDto> getEmpById(@PathVariable long empId)
     {
@@ -47,7 +52,7 @@ public class employeeController
         return ResponseEntity.ok(employeeMapping.empToDo(existingEmp));
     }
 
-    @PreAuthorize("hasAnyRole('Admin','Engineer')")
+//    @PreAuthorize("hasAnyRole('Admin','Engineer')")
     @GetMapping("/getByBinName")
     public ResponseEntity<employeeDto> getEmpByBin (@RequestParam binEnum binName )
     {
@@ -55,14 +60,14 @@ public class employeeController
         return ResponseEntity.ok(employeeMapping.empToDo(existingEmp));
     }
 
-    @GetMapping("/empByPage")
+//    @GetMapping("/empByPage")
     public ResponseEntity<Page<employee>> getEmployeeAsPage (@RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam (defaultValue = "10") int size)
     {
         return ResponseEntity.ok(employeeService.getEmployeeAsPage(page, size));
     }
 
-    @PreAuthorize("hasRole('Admin')")
+//    @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/deleteById/{empId}")
     public ResponseEntity<Void> deleteEmployeeById (@PathVariable long empId)
     {
@@ -70,7 +75,7 @@ public class employeeController
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("hasRole('Admin')")
+//    @PreAuthorize("hasRole('Admin')")
     @GetMapping("/search")
     public ResponseEntity<?> searchEmployees (@RequestParam(required = false) String empName,
                                                    @RequestParam(required = false) String ecnNum,
@@ -106,6 +111,18 @@ public class employeeController
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee can't be found :(");
         }
+    }
+
+    @GetMapping("/sorting")
+    public ResponseEntity<Page<employee>> getEmployeesBySorting (@RequestParam(defaultValue = "empId") String sortBy,
+                                                                 @RequestParam(defaultValue = "ASC") String direction,
+                                                                 @RequestParam(defaultValue = "0") int page,
+                                                                 @RequestParam(defaultValue = "10") int size)
+    {
+        Sort sort = direction.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return ResponseEntity.ok().body(employeeRepository.findAll(pageable));
+
     }
 
 }

@@ -12,6 +12,7 @@ import com.Eployees.Data.EmployeeData.Specification.ticketSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -151,9 +152,13 @@ public class ticketsController
                                                      @RequestParam(required = false) String createdDate,
                                                      @RequestParam(required = false) String modifiedDate,
                                                      @RequestParam(defaultValue = "0") int page,
-                                                     @RequestParam(defaultValue = "10") int size)
+                                                     @RequestParam(defaultValue = "10") int size,
+                                                     @RequestParam(defaultValue = "requestId") String sortBy,
+                                                     @RequestParam(defaultValue = "ASC") String direction)
     {
-        Pageable pageable = PageRequest.of(page, size);
+        Sort sort = direction.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         Specification<tickets> spec = ((root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
         if(status != null)
         {

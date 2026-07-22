@@ -7,11 +7,13 @@ import com.Eployees.Data.EmployeeData.Repository.dailySummaryRepository;
 import com.Eployees.Data.EmployeeData.Repository.employeeRepository;
 import com.Eployees.Data.EmployeeData.Service.dailySummaryService;
 import com.Eployees.Data.EmployeeData.Specification.dailySummarySpecification;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import tools.jackson.databind.ser.jdk.JDKKeySerializers;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -131,6 +133,14 @@ public class dailySummaryController
         LocalDateTime end = summaryDate.atTime(LocalTime.MAX);
         summary = dailySummaryRepository.findByDateBetween(start, end);
         return ResponseEntity.ok(summary);
+    }
+
+    @GetMapping("/sorting")
+    public ResponseEntity<?> sortDailySummary (@RequestParam (defaultValue = "empId") String sortBy,
+                                               @RequestParam(defaultValue = "ASC") String direction)
+    {
+        Sort sort = direction.equalsIgnoreCase("ASC") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        return ResponseEntity.ok().body(dailySummaryRepository.findAll(sort));
     }
 
     @PreAuthorize("hasRole('Admin')")

@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -36,9 +37,10 @@ public class authUserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginWithId (@RequestBody authUser user)
+    public ResponseEntity<?> loginWithId (@RequestBody authUser user)
     {
-      return new ResponseEntity<>(authUserService.loginWithId(user), HttpStatus.ACCEPTED);
+        String token = authUserService.loginWithId(user);
+      return  ResponseEntity.ok(Map.of("token", token));
     }
 
     @PreAuthorize("hasAnyRole('Admin','Engineer')")
