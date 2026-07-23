@@ -1,0 +1,60 @@
+package com.Employees.Data.Service;
+
+import com.Employees.Data.Entity.bin;
+import com.Employees.Data.Repository.binRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@Transactional
+public class binServiceImp implements binService
+{
+    private final binRepository binRepository;
+
+    public binServiceImp (binRepository binRepository)
+    {
+        this.binRepository = binRepository;
+    }
+
+    @Override
+    public bin createBin (bin bin)
+    {
+        return binRepository.save(bin);
+    }
+
+    @Override
+    public bin updateBin (String binId, bin bin)
+    {
+        bin existingBin = binRepository.findById(binId).orElseThrow(()->new IllegalArgumentException ("Bin can't be found"));
+        existingBin.setBinName(bin.getBinName());
+        if(existingBin.getEmployee() != null)
+        {
+            existingBin.setIsActive(true);
+        }
+        else
+        {
+            existingBin.setIsActive(false);
+        }
+        return binRepository.save(existingBin);
+    }
+
+    @Override
+    public bin getBin (String binId)
+    {
+        return binRepository.findById(binId).orElseThrow(()-> new IllegalArgumentException("Check and enter the correct Bin ID"));
+    }
+
+    @Override
+    public List<bin> getAllBins ()
+    {
+        return binRepository.findAll();
+    }
+
+    @Override
+    public void deleteBin (String binId)
+    {
+        binRepository.deleteById(binId);
+    }
+}
